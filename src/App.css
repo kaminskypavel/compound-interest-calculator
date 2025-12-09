@@ -92,6 +92,29 @@
   color: var(--color-danger);
 }
 
+.btn-lang {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 44px;
+}
+
+.btn-lang:hover {
+  background: var(--color-bg-input);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 /* Main Layout */
 .main {
   flex: 1;
@@ -860,4 +883,99 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+/* RTL Support */
+.app.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.app.rtl .logo {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .header-actions {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .number-input-btn.left {
+  border-right: none;
+  border-left: 1px solid var(--color-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.app.rtl .number-input-btn.right {
+  border-left: none;
+  border-right: 1px solid var(--color-border);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.app.rtl .number-input-addon.left {
+  left: auto;
+  right: 44px;
+}
+
+.app.rtl .number-input-addon.right {
+  right: auto;
+  left: 44px;
+}
+
+.app.rtl .form-buttons {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .btn-add-scenario,
+.app.rtl .btn-share,
+.app.rtl .btn-reset,
+.app.rtl .btn-random {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .scenario-card {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .scenario-content {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .scenario-results {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .chart-header {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .chart-controls {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .chart-legend {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .legend-item {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .zoom-controls {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .chart-tooltip-item {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .display-options {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .scenario-header {
+  flex-direction: row-reverse;
+}
+
+.app.rtl .scenario-count {
+  flex-direction: row-reverse;
 }

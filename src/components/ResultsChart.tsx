@@ -15,6 +15,7 @@ import { toPng } from 'html-to-image';
 import type { Scenario } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import { Button } from '@/components/ui/button';
+import { useI18nStore } from '../stores/i18nStore';
 
 interface Props {
   scenarios: Scenario[];
@@ -26,6 +27,7 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [isExporting, setIsExporting] = useState(false);
+  const { t } = useI18nStore();
 
   const handleZoomIn = () => {
     setZoomLevel((prev) => Math.min(prev + 25, 200));
@@ -68,8 +70,8 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
       <div className="chart-section-inner">
         <div className="chart-header">
           <div className="chart-title-group">
-            <h2 className="chart-title">Portfolio Growth</h2>
-            <p className="chart-subtitle">Visualize your investment trajectories</p>
+            <h2 className="chart-title">{t.portfolioGrowth}</h2>
+            <p className="chart-subtitle">{t.visualizeTrajectories}</p>
           </div>
         </div>
         <div className="chart-placeholder">
@@ -79,9 +81,9 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
               <path d="M7 16l4-4 4 4 5-6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <p className="chart-placeholder-text">No scenarios yet</p>
+          <p className="chart-placeholder-text">{t.noScenariosYet}</p>
           <p className="chart-placeholder-hint">
-            Add your first investment scenario using the form above to see growth projections
+            {t.addFirstScenario}
           </p>
         </div>
       </div>
@@ -146,9 +148,9 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
     <div className="chart-section-inner">
       <div className="chart-header">
         <div className="chart-title-group">
-          <h2 className="chart-title">Portfolio Growth</h2>
+          <h2 className="chart-title">{t.portfolioGrowth}</h2>
           <p className="chart-subtitle">
-            {scenarios.length} scenario{scenarios.length !== 1 ? 's' : ''} compared over {maxYears} years
+            {t.scenariosCompared(scenarios.length, maxYears)}
           </p>
         </div>
 
@@ -157,13 +159,13 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
             {showNominal && (
               <div className="legend-item">
                 <div className="legend-line nominal" />
-                <span>Nominal</span>
+                <span>{t.nominal}</span>
               </div>
             )}
             {showReal && (
               <div className="legend-item">
                 <div className="legend-line dashed" />
-                <span>Real</span>
+                <span>{t.real}</span>
               </div>
             )}
           </div>
@@ -218,7 +220,7 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
               <polyline points="7 10 12 15 17 10" strokeLinecap="round" strokeLinejoin="round"/>
               <line x1="12" y1="15" x2="12" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            {isExporting ? 'Exporting...' : 'PNG'}
+            {isExporting ? t.exporting : t.png}
           </Button>
         </div>
       </div>

@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import type { CalculatorInputs } from '../types';
+import { useI18nStore } from '../stores/i18nStore';
 
 const formSchema = z.object({
   scenarioName: z.string().min(1, 'Name is required'),
@@ -91,14 +92,9 @@ function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }
   );
 }
 
-// Random scenario names for dev mode
-const randomNames = [
-  'Conservative', 'Aggressive', 'Balanced', 'Growth', 'Income',
-  'S&P 500', 'Tech Heavy', 'Bonds Mix', 'Real Estate', 'International',
-  'Retirement', 'College Fund', 'Emergency', 'Vacation', 'House Down Payment'
-];
-
 export function CalculatorForm({ onCalculate }: Props) {
+  const { t } = useI18nStore();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -122,7 +118,7 @@ export function CalculatorForm({ onCalculate }: Props) {
   };
 
   const addRandomScenario = () => {
-    const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
+    const randomName = t.randomNames[Math.floor(Math.random() * t.randomNames.length)];
     const randomInvestment = Math.round((Math.random() * 90000 + 10000) / 1000) * 1000;
     const randomReturn = Math.round((Math.random() * 12 + 3) * 10) / 10;
     const randomInflation = Math.round((Math.random() * 4 + 1) * 10) / 10;
@@ -149,13 +145,13 @@ export function CalculatorForm({ onCalculate }: Props) {
             render={({ field }) => (
               <FormItem className="form-item form-item-name">
                 <FormLabel className="form-label">
-                  Scenario Name
-                  <span className="form-label-hint">required</span>
+                  {t.scenarioName}
+                  <span className="form-label-hint">{t.required}</span>
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder="e.g., Conservative Portfolio"
+                    placeholder={t.scenarioNamePlaceholder}
                     className="form-input"
                   />
                 </FormControl>
@@ -169,7 +165,7 @@ export function CalculatorForm({ onCalculate }: Props) {
             name="initialInvestment"
             render={({ field }) => (
               <FormItem className="form-item">
-                <FormLabel className="form-label">Initial Investment</FormLabel>
+                <FormLabel className="form-label">{t.initialInvestment}</FormLabel>
                 <FormControl>
                   <NumberInput
                     value={field.value}
@@ -189,8 +185,8 @@ export function CalculatorForm({ onCalculate }: Props) {
             render={({ field }) => (
               <FormItem className="form-item">
                 <FormLabel className="form-label">
-                  Annual Return
-                  <span className="form-label-hint">expected</span>
+                  {t.annualReturn}
+                  <span className="form-label-hint">{t.expected}</span>
                 </FormLabel>
                 <FormControl>
                   <NumberInput
@@ -212,8 +208,8 @@ export function CalculatorForm({ onCalculate }: Props) {
             render={({ field }) => (
               <FormItem className="form-item">
                 <FormLabel className="form-label">
-                  Inflation Rate
-                  <span className="form-label-hint">expected</span>
+                  {t.inflationRate}
+                  <span className="form-label-hint">{t.expected}</span>
                 </FormLabel>
                 <FormControl>
                   <NumberInput
@@ -234,7 +230,7 @@ export function CalculatorForm({ onCalculate }: Props) {
             name="years"
             render={({ field }) => (
               <FormItem className="form-item">
-                <FormLabel className="form-label">Time Horizon</FormLabel>
+                <FormLabel className="form-label">{t.timeHorizon}</FormLabel>
                 <FormControl>
                   <NumberInput
                     value={field.value}
@@ -242,7 +238,7 @@ export function CalculatorForm({ onCalculate }: Props) {
                     min={1}
                     max={100}
                     step={1}
-                    suffix="yrs"
+                    suffix={t.years}
                   />
                 </FormControl>
               </FormItem>
@@ -255,7 +251,7 @@ export function CalculatorForm({ onCalculate }: Props) {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Add Scenario
+                {t.addScenario}
               </Button>
               {isDev && (
                 <Button
@@ -277,7 +273,7 @@ export function CalculatorForm({ onCalculate }: Props) {
                     <circle cx="17" cy="17" r="1" fill="currentColor" />
                     <circle cx="19" cy="19" r="1" fill="currentColor" />
                   </svg>
-                  Random
+                  {t.random}
                 </Button>
               )}
             </div>

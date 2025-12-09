@@ -4,6 +4,7 @@ import { CalculatorForm } from './components/CalculatorForm';
 import { ResultsChart } from './components/ResultsChart';
 import { ScenarioList } from './components/ScenarioList';
 import { useScenarioStore } from './stores/scenarioStore';
+import { useI18nStore } from './stores/i18nStore';
 import './App.css';
 
 const displayModes = ['nominal', 'real', 'both'] as const;
@@ -28,6 +29,10 @@ function App() {
     loadSerializedScenarios,
   } = useScenarioStore();
 
+  // i18n
+  const { language, setLanguage, t } = useI18nStore();
+  const isRTL = language === 'he';
+
   // Load scenarios from URL on mount
   useEffect(() => {
     if (scenariosParam && scenarios.length === 0) {
@@ -50,25 +55,32 @@ function App() {
 
   const copyShareLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    alert('Link copied to clipboard!');
+    alert(t.linkCopied);
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'he' : 'en');
   };
 
   return (
-    <div className="app dark">
+    <div className={`app dark ${isRTL ? 'rtl' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <header className="header">
         <div className="header-content">
           <div className="logo">
-            <span className="logo-text">Compound</span>
-            <span className="logo-accent">Growth</span>
+            <span className="logo-text">{t.logoText}</span>
+            <span className="logo-accent">{t.logoAccent}</span>
           </div>
           <div className="header-actions">
+            <button onClick={toggleLanguage} className="btn-lang">
+              {language === 'en' ? 'עב' : 'EN'}
+            </button>
             {scenarios.length > 0 && (
               <>
                 <button onClick={handleClear} className="btn-reset">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Reset
+                  {t.reset}
                 </button>
                 <button onClick={copyShareLink} className="btn-share">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -76,11 +88,11 @@ function App() {
                     <polyline points="16,6 12,2 8,6" strokeLinecap="round" strokeLinejoin="round"/>
                     <line x1="12" y1="2" x2="12" y2="15" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Share
+                  {t.share}
                 </button>
               </>
             )}
-            <span className="header-tagline">Investment Calculator</span>
+            <span className="header-tagline">{t.tagline}</span>
           </div>
         </div>
       </header>
@@ -92,28 +104,28 @@ function App() {
 
         <section className="options-section">
           <div className="display-options">
-            <div className="display-options-title">Display Mode</div>
+            <div className="display-options-title">{t.displayMode}</div>
             <div className="segmented-toggle">
               <button
                 type="button"
                 className={`toggle-btn ${displayMode === 'nominal' ? 'active' : ''}`}
                 onClick={() => setDisplayMode('nominal')}
               >
-                Nominal
+                {t.nominal}
               </button>
               <button
                 type="button"
                 className={`toggle-btn ${displayMode === 'real' ? 'active' : ''}`}
                 onClick={() => setDisplayMode('real')}
               >
-                Real
+                {t.real}
               </button>
               <button
                 type="button"
                 className={`toggle-btn ${displayMode === 'both' ? 'active' : ''}`}
                 onClick={() => setDisplayMode('both')}
               >
-                Both
+                {t.both}
               </button>
             </div>
           </div>

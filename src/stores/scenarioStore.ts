@@ -53,15 +53,25 @@ export const useScenarioStore = create<ScenarioState>()(
           y: s.inputs.years,
         }))
 
-        // Base64 encode the JSON
-        return btoa(JSON.stringify(simplified))
+        // Base64 encode the JSON (with Unicode support)
+        const jsonStr = JSON.stringify(simplified)
+        const utf8Bytes = new TextEncoder().encode(jsonStr)
+        const binaryStr = Array.from(utf8Bytes, (byte) => String.fromCharCode(byte)).join('')
+        return btoa(binaryStr)
       },
 
       loadSerializedScenarios: (data: string) => {
         if (!data) return
 
         try {
-          const simplified = JSON.parse(atob(data)) as Array<{
+          // Decode with Unicode support
+          const binaryStr = atob(data)
+          const utf8Bytes = new Uint8Array(binaryStr.length)
+          for (let i = 0; i < binaryStr.length; i++) {
+            utf8Bytes[i] = binaryStr.charCodeAt(i)
+          }
+          const jsonStr = new TextDecoder().decode(utf8Bytes)
+          const simplified = JSON.parse(jsonStr) as Array<{
             n: string
             i: number
             r: number

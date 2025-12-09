@@ -1,5 +1,6 @@
 import type { Scenario } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { useI18nStore } from '../stores/i18nStore';
 
 interface Props {
   scenarios: Scenario[];
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export function ScenarioList({ scenarios, onRemove, onClear }: Props) {
+  const { t } = useI18nStore();
+
   if (scenarios.length === 0) {
     return null;
   }
@@ -16,11 +19,11 @@ export function ScenarioList({ scenarios, onRemove, onClear }: Props) {
     <div className="scenario-list">
       <div className="scenario-header">
         <div className="scenario-count">
-          <h3 className="scenario-title">Scenarios</h3>
+          <h3 className="scenario-title">{t.scenarios}</h3>
           <span className="scenario-badge">{scenarios.length}</span>
         </div>
         <button onClick={onClear} className="btn-ghost">
-          Clear All
+          {t.clearAll}
         </button>
       </div>
 
@@ -51,13 +54,13 @@ export function ScenarioList({ scenarios, onRemove, onClear }: Props) {
                 </div>
                 <div className="scenario-results">
                   <div className="scenario-result">
-                    <span className="scenario-result-label">Nominal</span>
+                    <span className="scenario-result-label">{t.nominal}</span>
                     <span className="scenario-result-value nominal">
                       {formatCurrency(finalYear.nominalValue)}
                     </span>
                   </div>
                   <div className="scenario-result">
-                    <span className="scenario-result-label">Real</span>
+                    <span className="scenario-result-label">{t.real}</span>
                     <span className="scenario-result-value real">
                       {formatCurrency(finalYear.realValue)}
                     </span>
