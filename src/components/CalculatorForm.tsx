@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -42,6 +42,8 @@ interface NumberInputProps {
 }
 
 function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }: NumberInputProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   const increment = () => {
     const newValue = value + step;
     if (max === undefined || newValue <= max) {
@@ -54,6 +56,17 @@ function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }
     if (newValue >= min) {
       onChange(Math.round(newValue * 100) / 100);
     }
+  };
+
+  // Format number with thousand separators
+  const formatNumber = (num: number): string => {
+    return num.toLocaleString('en-US');
+  };
+
+  // Parse string back to number (remove commas)
+  const parseNumber = (str: string): number => {
+    const cleaned = str.replace(/,/g, '');
+    return parseFloat(cleaned) || 0;
   };
 
   return (
@@ -70,13 +83,13 @@ function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }
         </svg>
       </button>
       {prefix && <span className="number-input-addon left">{prefix}</span>}
-      <Input
-        type="number"
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        min={min}
-        max={max}
-        step={step}
+      <input
+        type="text"
+        inputMode="decimal"
+        value={isFocused ? value : formatNumber(value)}
+        onChange={(e) => onChange(parseNumber(e.target.value))}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         className="number-input-field"
       />
       {suffix && <span className="number-input-addon right">{suffix}</span>}
