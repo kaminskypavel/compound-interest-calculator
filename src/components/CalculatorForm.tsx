@@ -1,134 +1,185 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '@/components/ui/form';
 import type { CalculatorInputs } from '../types';
+
+const formSchema = z.object({
+  scenarioName: z.string().optional(),
+  initialInvestment: z.coerce.number().min(0, 'Must be positive'),
+  annualReturn: z.coerce.number().min(0).max(100),
+  inflationRate: z.coerce.number().min(0).max(100),
+  years: z.coerce.number().min(1).max(100),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface Props {
   onCalculate: (inputs: CalculatorInputs, name: string) => void;
 }
 
 export function CalculatorForm({ onCalculate }: Props) {
-  const [inputs, setInputs] = useState<CalculatorInputs>({
-    initialInvestment: 10000,
-    annualReturn: 7,
-    inflationRate: 3,
-    years: 30,
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      scenarioName: '',
+      initialInvestment: 10000,
+      annualReturn: 7,
+      inflationRate: 3,
+      years: 30,
+    },
   });
-  const [scenarioName, setScenarioName] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const name = scenarioName.trim() || `$${inputs.initialInvestment.toLocaleString()} @ ${inputs.annualReturn}%`;
+  const onSubmit = (values: FormValues) => {
+    const inputs: CalculatorInputs = {
+      initialInvestment: values.initialInvestment,
+      annualReturn: values.annualReturn,
+      inflationRate: values.inflationRate,
+      years: values.years,
+    };
+    const name = values.scenarioName?.trim() || `$${inputs.initialInvestment.toLocaleString()} @ ${inputs.annualReturn}%`;
     onCalculate(inputs, name);
-    setScenarioName('');
-  };
-
-  const handleInputChange = (field: keyof CalculatorInputs, value: string) => {
-    const numValue = parseFloat(value) || 0;
-    setInputs((prev) => ({ ...prev, [field]: numValue }));
+    form.setValue('scenarioName', '');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="calculator-form">
-      <div className="form-header">
-        <h2 className="form-title">New Scenario</h2>
-        <p className="form-subtitle">Configure your investment parameters</p>
-      </div>
-
-      <div className="form-grid">
-        <div className="form-group">
-          <label className="form-label" htmlFor="scenarioName">
-            Scenario Name
-            <span className="form-label-hint">optional</span>
-          </label>
-          <input
-            type="text"
-            id="scenarioName"
-            className="form-input"
-            value={scenarioName}
-            onChange={(e) => setScenarioName(e.target.value)}
-            placeholder="e.g., Conservative Portfolio"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="calculator-form">
+        <div className="form-fields">
+          <FormField
+            control={form.control}
+            name="scenarioName"
+            render={({ field }) => (
+              <FormItem className="form-item">
+                <FormLabel className="form-label">
+                  Scenario Name
+                  <span className="form-label-hint">optional</span>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="e.g., Conservative Portfolio"
+                    className="form-input"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
-        </div>
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="initialInvestment">
-            Initial Investment
-          </label>
-          <div className="form-input-with-prefix">
-            <span className="form-input-prefix">$</span>
-            <input
-              type="number"
-              id="initialInvestment"
-              className="form-input"
-              value={inputs.initialInvestment}
-              onChange={(e) => handleInputChange('initialInvestment', e.target.value)}
-              min="0"
-              step="any"
-            />
+          <FormField
+            control={form.control}
+            name="initialInvestment"
+            render={({ field }) => (
+              <FormItem className="form-item">
+                <FormLabel className="form-label">Initial Investment</FormLabel>
+                <FormControl>
+                  <div className="input-with-addon">
+                    <span className="input-addon left">$</span>
+                    <Input
+                      {...field}
+                      type="number"
+                      min="0"
+                      step="any"
+                      className="form-input with-left-addon"
+                    />
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="annualReturn"
+            render={({ field }) => (
+              <FormItem className="form-item">
+                <FormLabel className="form-label">
+                  Annual Return
+                  <span className="form-label-hint">expected</span>
+                </FormLabel>
+                <FormControl>
+                  <div className="input-with-addon">
+                    <Input
+                      {...field}
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      className="form-input with-right-addon"
+                    />
+                    <span className="input-addon right">%</span>
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="inflationRate"
+            render={({ field }) => (
+              <FormItem className="form-item">
+                <FormLabel className="form-label">
+                  Inflation Rate
+                  <span className="form-label-hint">expected</span>
+                </FormLabel>
+                <FormControl>
+                  <div className="input-with-addon">
+                    <Input
+                      {...field}
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      className="form-input with-right-addon"
+                    />
+                    <span className="input-addon right">%</span>
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="years"
+            render={({ field }) => (
+              <FormItem className="form-item">
+                <FormLabel className="form-label">Time Horizon</FormLabel>
+                <FormControl>
+                  <div className="input-with-addon">
+                    <Input
+                      {...field}
+                      type="number"
+                      min="1"
+                      max="100"
+                      className="form-input with-right-addon"
+                    />
+                    <span className="input-addon right">yrs</span>
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <div className="form-item form-submit">
+            <Button type="submit" className="btn-add-scenario">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Add Scenario
+            </Button>
           </div>
         </div>
-
-        <div className="form-group">
-          <label className="form-label" htmlFor="annualReturn">
-            Annual Return
-            <span className="form-label-hint">expected</span>
-          </label>
-          <div className="form-input-with-suffix">
-            <input
-              type="number"
-              id="annualReturn"
-              className="form-input"
-              value={inputs.annualReturn}
-              onChange={(e) => handleInputChange('annualReturn', e.target.value)}
-              min="0"
-              max="100"
-              step="0.1"
-            />
-            <span className="form-input-suffix">%</span>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label" htmlFor="inflationRate">
-            Inflation Rate
-            <span className="form-label-hint">expected</span>
-          </label>
-          <div className="form-input-with-suffix">
-            <input
-              type="number"
-              id="inflationRate"
-              className="form-input"
-              value={inputs.inflationRate}
-              onChange={(e) => handleInputChange('inflationRate', e.target.value)}
-              min="0"
-              max="100"
-              step="0.1"
-            />
-            <span className="form-input-suffix">%</span>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label" htmlFor="years">
-            Time Horizon
-          </label>
-          <div className="form-input-with-suffix">
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              id="years"
-              className="form-input"
-              value={inputs.years}
-              onChange={(e) => handleInputChange('years', e.target.value)}
-            />
-            <span className="form-input-suffix">yrs</span>
-          </div>
-        </div>
-      </div>
-
-      <button type="submit" className="btn-primary">
-        Add Scenario
-      </button>
-    </form>
+      </form>
+    </Form>
   );
 }

@@ -54,31 +54,35 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <div className="app dark">
       <header className="header">
-        <div className="logo">
-          <span className="logo-text">Compound</span>
-          <span className="logo-accent">Growth</span>
-        </div>
-        <div className="header-actions">
-          {scenarios.length > 0 && (
-            <button onClick={copyShareLink} className="btn-share">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="16,6 12,2 8,6" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="12" y1="2" x2="12" y2="15" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Share
-            </button>
-          )}
-          <span className="header-tagline">Investment Calculator</span>
+        <div className="header-content">
+          <div className="logo">
+            <span className="logo-text">Compound</span>
+            <span className="logo-accent">Growth</span>
+          </div>
+          <div className="header-actions">
+            {scenarios.length > 0 && (
+              <button onClick={copyShareLink} className="btn-share">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <polyline points="16,6 12,2 8,6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="12" y1="2" x2="12" y2="15" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Share
+              </button>
+            )}
+            <span className="header-tagline">Investment Calculator</span>
+          </div>
         </div>
       </header>
 
       <main className="main">
-        <aside className="sidebar">
+        <section className="form-section">
           <CalculatorForm onCalculate={addScenario} />
+        </section>
 
+        <section className="options-section">
           <div className="display-options">
             <div className="display-options-title">Display Mode</div>
             <div className="segmented-toggle">
@@ -111,7 +115,7 @@ function App() {
             onRemove={removeScenario}
             onClear={handleClear}
           />
-        </aside>
+        </section>
 
         <section className="chart-section">
           <ResultsChart

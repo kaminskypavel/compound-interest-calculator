@@ -1,3 +1,4 @@
+import { useRef, useState, useCallback } from 'react';
 import {
   Line,
   XAxis,
@@ -7,9 +8,13 @@ import {
   ResponsiveContainer,
   Area,
   ComposedChart,
+  Brush,
+  ReferenceLine,
 } from 'recharts';
+import { toPng } from 'html-to-image';
 import type { Scenario } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   scenarios: Scenario[];
@@ -18,9 +23,49 @@ interface Props {
 }
 
 export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [zoomLevel, setZoomLevel] = useState(100);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleZoomIn = () => {
+    setZoomLevel((prev) => Math.min(prev + 25, 200));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel((prev) => Math.max(prev - 25, 50));
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(100);
+  };
+
+  const handleDownloadPng = useCallback(async () => {
+    if (!chartRef.current) return;
+
+    setIsExporting(true);
+    try {
+      const dataUrl = await toPng(chartRef.current, {
+        backgroundColor: '#0a0a0c',
+        pixelRatio: 2,
+        style: {
+          transform: 'scale(1)',
+        },
+      });
+
+      const link = document.createElement('a');
+      link.download = `compound-growth-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to export chart:', err);
+    } finally {
+      setIsExporting(false);
+    }
+  }, []);
+
   if (scenarios.length === 0) {
     return (
-      <>
+      <div className="chart-section-inner">
         <div className="chart-header">
           <div className="chart-title-group">
             <h2 className="chart-title">Portfolio Growth</h2>
@@ -29,17 +74,17 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
         </div>
         <div className="chart-placeholder">
           <div className="chart-placeholder-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M3 3v18h18" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M7 16l4-4 4 4 5-6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
           <p className="chart-placeholder-text">No scenarios yet</p>
           <p className="chart-placeholder-hint">
-            Add your first investment scenario using the form to see growth projections
+            Add your first investment scenario using the form above to see growth projections
           </p>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -63,48 +108,23 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
     if (!active || !payload) return null;
 
     return (
-      <div style={{
-        background: 'var(--color-bg-card)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-md)',
-        padding: 'var(--space-md)',
-        boxShadow: 'var(--shadow-card)',
-      }}>
-        <div style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: '0.75rem',
-          color: 'var(--color-text-tertiary)',
-          marginBottom: 'var(--space-sm)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-        }}>
+      <div className="chart-tooltip">
+        <div className="chart-tooltip-header">
           Year {label}
         </div>
         {payload.map((entry: any, index: number) => (
-          <div key={index} style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-sm)',
-            marginTop: 'var(--space-xs)',
-          }}>
-            <div style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: entry.stroke,
-            }} />
-            <span style={{
-              fontSize: '0.8rem',
-              color: 'var(--color-text-secondary)',
-            }}>
+          <div key={index} className="chart-tooltip-item">
+            <div
+              className="chart-tooltip-dot"
+              style={{ background: entry.stroke }}
+            />
+            <span className="chart-tooltip-label">
               {entry.name}:
             </span>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.85rem',
-              fontWeight: 500,
-              color: entry.stroke,
-            }}>
+            <span
+              className="chart-tooltip-value"
+              style={{ color: entry.stroke }}
+            >
               {formatCurrency(entry.value)}
             </span>
           </div>
@@ -113,8 +133,10 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
     );
   };
 
+  const chartHeight = Math.max(400, 400 * (zoomLevel / 100));
+
   return (
-    <>
+    <div className="chart-section-inner">
       <div className="chart-header">
         <div className="chart-title-group">
           <h2 className="chart-title">Portfolio Growth</h2>
@@ -122,25 +144,81 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
             {scenarios.length} scenario{scenarios.length !== 1 ? 's' : ''} compared over {maxYears} years
           </p>
         </div>
-        <div className="chart-legend">
-          {showNominal && (
-            <div className="legend-item">
-              <div className="legend-line nominal" />
-              <span>Nominal</span>
-            </div>
-          )}
-          {showReal && (
-            <div className="legend-item">
-              <div className="legend-line dashed" />
-              <span>Real</span>
-            </div>
-          )}
+
+        <div className="chart-controls">
+          <div className="chart-legend">
+            {showNominal && (
+              <div className="legend-item">
+                <div className="legend-line nominal" />
+                <span>Nominal</span>
+              </div>
+            )}
+            {showReal && (
+              <div className="legend-item">
+                <div className="legend-line dashed" />
+                <span>Real</span>
+              </div>
+            )}
+          </div>
+
+          <div className="zoom-controls">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleZoomOut}
+              disabled={zoomLevel <= 50}
+              className="zoom-btn"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35M8 11h6"/>
+              </svg>
+            </Button>
+            <span className="zoom-level">{zoomLevel}%</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleZoomIn}
+              disabled={zoomLevel >= 200}
+              className="zoom-btn"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+              </svg>
+            </Button>
+            {zoomLevel !== 100 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetZoom}
+                className="zoom-reset"
+              >
+                Reset
+              </Button>
+            )}
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadPng}
+            disabled={isExporting}
+            className="download-btn"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeLinecap="round" strokeLinejoin="round"/>
+              <polyline points="7 10 12 15 17 10" strokeLinecap="round" strokeLinejoin="round"/>
+              <line x1="12" y1="15" x2="12" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {isExporting ? 'Exporting...' : 'PNG'}
+          </Button>
         </div>
       </div>
 
-      <div className="chart-container">
-        <ResponsiveContainer width="100%" height={450}>
-          <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
+      <div className="chart-container" ref={chartRef}>
+        <ResponsiveContainer width="100%" height={chartHeight}>
+          <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <defs>
               {scenarios.map((scenario) => (
                 <linearGradient
@@ -151,7 +229,7 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="0%" stopColor={scenario.color} stopOpacity={0.15} />
+                  <stop offset="0%" stopColor={scenario.color} stopOpacity={0.2} />
                   <stop offset="100%" stopColor={scenario.color} stopOpacity={0} />
                 </linearGradient>
               ))}
@@ -172,7 +250,7 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
               label={{
                 value: 'Years',
                 position: 'insideBottom',
-                offset: -15,
+                offset: -10,
                 fill: 'var(--color-text-tertiary)',
                 fontSize: 12,
               }}
@@ -192,6 +270,16 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
             />
 
             <Tooltip content={<CustomTooltip />} />
+
+            <Brush
+              dataKey="year"
+              height={30}
+              stroke="var(--color-accent)"
+              fill="var(--color-bg-card)"
+              travellerWidth={10}
+            />
+
+            <ReferenceLine y={0} stroke="var(--color-border)" />
 
             {scenarios.map((scenario) => (
               <Area
@@ -247,6 +335,6 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-    </>
+    </div>
   );
 }
