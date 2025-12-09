@@ -1,7 +1,6 @@
 import type { Scenario } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import { useI18nStore } from '../stores/i18nStore';
-import type { Translations } from '../stores/i18nStore';
 
 interface Props {
   scenarios: Scenario[];
