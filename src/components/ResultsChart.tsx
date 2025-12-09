@@ -4,7 +4,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   Area,
   ComposedChart,
@@ -15,6 +15,7 @@ import { toPng } from 'html-to-image';
 import type { Scenario } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useI18nStore } from '../stores/i18nStore';
 
 type DisplayMode = 'nominal' | 'real' | 'both';
@@ -194,14 +195,16 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
               {t.both}
             </button>
           </div>
-          <div className="fisher-tooltip">
-            <button type="button" className="info-btn" aria-label="Learn about real returns calculation">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-              </svg>
-            </button>
-            <div className="tooltip-content">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button type="button" className="info-btn" aria-label="Learn about real returns calculation">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="fisher-tooltip-content">
               <p>{t.fisherTooltipText}</p>
               <code>(1 + nominal) / (1 + inflation) - 1</code>
               <a
@@ -211,8 +214,8 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
               >
                 {t.fisherLearnMore}
               </a>
-            </div>
-          </div>
+            </TooltipContent>
+          </Tooltip>
 
           <div className="zoom-controls">
             <Button
@@ -323,7 +326,7 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
               width={70}
             />
 
-            <Tooltip content={<CustomTooltip />} />
+            <RechartsTooltip content={<CustomTooltip />} />
 
             <Brush
               dataKey="year"
