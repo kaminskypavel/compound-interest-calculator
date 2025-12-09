@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,10 @@ import { useI18nStore } from '../stores/i18nStore';
 
 const formSchema = z.object({
   scenarioName: z.string().min(1, 'Name is required'),
-  initialInvestment: z.coerce.number().min(0, 'Must be positive'),
-  annualReturn: z.coerce.number().min(0).max(100),
-  inflationRate: z.coerce.number().min(0).max(100),
-  years: z.coerce.number().min(1).max(100),
+  initialInvestment: z.number().min(0, 'Must be positive'),
+  annualReturn: z.number().min(0).max(100),
+  inflationRate: z.number().min(0).max(100),
+  years: z.number().min(1).max(100),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -106,7 +106,7 @@ export function CalculatorForm({ onCalculate }: Props) {
     },
   });
 
-  const onSubmit = (values: FormValues) => {
+  const onSubmit: SubmitHandler<FormValues> = (values) => {
     const inputs: CalculatorInputs = {
       initialInvestment: values.initialInvestment,
       annualReturn: values.annualReturn,
