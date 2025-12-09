@@ -1,73 +1,76 @@
-# React + TypeScript + Vite
+# Compound Growth Calculator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, interactive investment calculator that visualizes compound interest growth over time. Compare multiple investment scenarios, see the impact of inflation on your returns, and make informed financial decisions.
 
-Currently, two official plugins are available:
+![Compound Growth Calculator](public/og-image.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**[Live Demo](https://kaminskypavel.github.io/compound-interest-calculator/)**
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Multiple Scenarios** - Compare different investment strategies side by side
+- **Nominal vs Real Returns** - See both raw returns and inflation-adjusted values using the [Fisher equation](https://en.wikipedia.org/wiki/Fisher_equation)
+- **Monthly Contributions** - Model regular investment contributions alongside initial capital
+- **Interactive Charts** - Zoom, pan, and explore your investment projections with Recharts
+- **URL Serialization** - Share scenarios via URL - all parameters are stored in the query string
+- **Multi-language Support** - English and Hebrew with full RTL support
+- **Export to PNG** - Download your charts for presentations or records
+- **Responsive Design** - Works beautifully on desktop and mobile devices
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **React 19** with TypeScript
+- **Vite** for blazing fast development
+- **Recharts** for interactive data visualization
+- **Zustand** for state management
+- **nuqs** for URL query state synchronization
+- **Tailwind CSS v4** for styling
+- **Bun** for package management and testing
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Install dependencies
+bun install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Start development server
+bun run dev
+
+# Run tests
+bun test
+
+# Build for production
+bun run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## How It Works
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Compound Interest Formula
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+The calculator uses the future value formula with monthly compounding:
+
 ```
+FV = P(1+r)^n + PMT × [((1+r)^n - 1) / r]
+```
+
+Where:
+
+- **FV** = Future Value
+- **P** = Initial Principal (Initial Investment)
+- **r** = Monthly interest rate (Annual Return / 12)
+- **n** = Number of months (Years × 12)
+- **PMT** = Monthly contribution
+
+### Real Returns (Fisher Equation)
+
+To calculate inflation-adjusted (real) returns, we use the Fisher equation:
+
+```
+Real Rate = (1 + Nominal Rate) / (1 + Inflation Rate) - 1
+```
+
+This provides a more accurate adjustment for inflation than the simple approximation of subtracting the inflation rate from the nominal rate.
+
+## Author
+
+Developed by [Pavel "PK" Kaminsky](https://github.com/kaminskypavel)
