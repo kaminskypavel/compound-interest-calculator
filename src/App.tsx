@@ -1,35 +1,56 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { CalculatorForm } from './components/CalculatorForm';
 import { ResultsChart } from './components/ResultsChart';
 import { ScenarioList } from './components/ScenarioList';
-import type { CalculatorInputs, Scenario } from './types';
-import { calculateCompoundInterest, generateColor } from './utils/calculations';
+import { useScenarioStore } from './stores/scenarioStore';
 import './App.css';
 
-type DisplayMode = 'nominal' | 'real' | 'both';
+const displayModes = ['nominal', 'real', 'both'] as const;
 
 function App() {
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('both');
+  // URL-synced display mode with nuqs
+  const [displayMode, setDisplayMode] = useQueryState(
+    'mode',
+    parseAsStringLiteral(displayModes).withDefault('both')
+  );
 
-  const handleCalculate = (inputs: CalculatorInputs, name: string) => {
-    const yearlyData = calculateCompoundInterest(inputs);
-    const newScenario: Scenario = {
-      id: crypto.randomUUID(),
-      name,
-      inputs,
-      yearlyData,
-      color: generateColor(scenarios.length),
-    };
-    setScenarios((prev) => [...prev, newScenario]);
-  };
+  // URL-synced scenarios data
+  const [scenariosParam, setScenariosParam] = useQueryState('s');
 
-  const handleRemove = (id: string) => {
-    setScenarios((prev) => prev.filter((s) => s.id !== id));
-  };
+  // Zustand store for scenarios
+  const {
+    scenarios,
+    addScenario,
+    removeScenario,
+    clearScenarios,
+    getSerializedScenarios,
+    loadSerializedScenarios,
+  } = useScenarioStore();
+
+  // Load scenarios from URL on mount
+  useEffect(() => {
+    if (scenariosParam && scenarios.length === 0) {
+      loadSerializedScenarios(scenariosParam);
+    }
+  }, []);
+
+  // Sync scenarios to URL when they change
+  useEffect(() => {
+    const serialized = getSerializedScenarios();
+    if (serialized !== scenariosParam) {
+      setScenariosParam(serialized || null);
+    }
+  }, [scenarios]);
 
   const handleClear = () => {
-    setScenarios([]);
+    clearScenarios();
+    setScenariosParam(null);
+  };
+
+  const copyShareLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Link copied to clipboard!');
   };
 
   return (
@@ -39,12 +60,24 @@ function App() {
           <span className="logo-text">Compound</span>
           <span className="logo-accent">Growth</span>
         </div>
-        <span className="header-tagline">Investment Calculator</span>
+        <div className="header-actions">
+          {scenarios.length > 0 && (
+            <button onClick={copyShareLink} className="btn-share">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="16,6 12,2 8,6" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="12" y1="2" x2="12" y2="15" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Share
+            </button>
+          )}
+          <span className="header-tagline">Investment Calculator</span>
+        </div>
       </header>
 
       <main className="main">
         <aside className="sidebar">
-          <CalculatorForm onCalculate={handleCalculate} />
+          <CalculatorForm onCalculate={addScenario} />
 
           <div className="display-options">
             <div className="display-options-title">Display Mode</div>
@@ -75,7 +108,7 @@ function App() {
 
           <ScenarioList
             scenarios={scenarios}
-            onRemove={handleRemove}
+            onRemove={removeScenario}
             onClear={handleClear}
           />
         </aside>
