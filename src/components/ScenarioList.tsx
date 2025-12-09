@@ -1,6 +1,7 @@
 import type { Scenario } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import { useI18nStore } from '../stores/i18nStore';
+import type { Translations } from '../stores/i18nStore';
 
 interface Props {
   scenarios: Scenario[];
@@ -54,7 +55,7 @@ export function ScenarioList({ scenarios, onRemove, onClear }: Props) {
                 <div className="scenario-params">
                   <div className="scenario-param">
                     <span className="param-label">{t.initialInvestment}</span>
-                    <span className="param-value">{formatCurrency(scenario.inputs.initialInvestment)}</span>
+                    <span className="param-value">{formatCurrency(scenario.inputs.initialInvestment, t.currency)}</span>
                   </div>
                   <div className="scenario-param">
                     <span className="param-label">{t.annualReturn}</span>
@@ -75,11 +76,11 @@ export function ScenarioList({ scenarios, onRemove, onClear }: Props) {
                 <div className="scenario-results">
                   <div className="scenario-result">
                     <span className="result-label">{t.nominal}</span>
-                    <span className="result-value nominal">{formatCurrency(finalYear.nominalValue)}</span>
+                    <span className="result-value nominal">{formatCurrency(finalYear.nominalValue, t.currency)}</span>
                   </div>
                   <div className="scenario-result">
                     <span className="result-label">{t.real}</span>
-                    <span className="result-value real">{formatCurrency(finalYear.realValue)}</span>
+                    <span className="result-value real">{formatCurrency(finalYear.realValue, t.currency)}</span>
                   </div>
                   <div className="scenario-result growth">
                     <span className="result-label">{t.growth}</span>

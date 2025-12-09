@@ -4,6 +4,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 export type Language = 'en' | 'he';
 
 interface TranslationStrings {
+  currency: 'USD' | 'ILS';
+  currencySymbol: string;
   logoText: string;
   logoAccent: string;
   tagline: string;
@@ -44,6 +46,10 @@ interface TranslationStrings {
 
 export const translations: Record<Language, TranslationStrings> = {
   en: {
+    // Currency
+    currency: 'USD',
+    currencySymbol: '$',
+
     // Header
     logoText: 'Compound',
     logoAccent: 'Growth',
@@ -98,6 +104,10 @@ export const translations: Record<Language, TranslationStrings> = {
     ],
   },
   he: {
+    // Currency
+    currency: 'ILS',
+    currencySymbol: '₪',
+
     // Header
     logoText: 'ריבית',
     logoAccent: 'דריבית',

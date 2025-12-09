@@ -25,10 +25,11 @@ export function calculateCompoundInterest(inputs: CalculatorInputs): YearlyData[
   return data;
 }
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(value: number, currency: 'USD' | 'ILS' = 'USD'): string {
+  const locale = currency === 'ILS' ? 'he-IL' : 'en-US';
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'USD',
+    currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);

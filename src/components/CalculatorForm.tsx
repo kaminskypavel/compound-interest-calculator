@@ -176,7 +176,7 @@ export function CalculatorForm({ onCalculate }: Props) {
                     onChange={field.onChange}
                     min={0}
                     step={1000}
-                    prefix="$"
+                    prefix={t.currencySymbol}
                   />
                 </FormControl>
               </FormItem>

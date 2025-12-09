@@ -134,7 +134,7 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
               className="chart-tooltip-value"
               style={{ color: entry.stroke }}
             >
-              {formatCurrency(entry.value)}
+              {formatCurrency(entry.value, t.currency)}
             </span>
           </div>
         ))}
@@ -267,9 +267,10 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
 
             <YAxis
               tickFormatter={(value) => {
-                if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-                if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
-                return `$${value}`;
+                const symbol = t.currencySymbol;
+                if (value >= 1000000) return `${symbol}${(value / 1000000).toFixed(1)}M`;
+                if (value >= 1000) return `${symbol}${(value / 1000).toFixed(0)}K`;
+                return `${symbol}${value}`;
               }}
               stroke="var(--color-text-tertiary)"
               tick={{ fill: 'var(--color-text-tertiary)', fontSize: 12 }}
