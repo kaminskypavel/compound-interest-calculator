@@ -6,6 +6,7 @@ describe('calculateCompoundInterest', () => {
   test('should return correct number of data points', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 7,
       inflationRate: 3,
       years: 10,
@@ -19,6 +20,7 @@ describe('calculateCompoundInterest', () => {
   test('year 0 should equal initial investment for both nominal and real', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 7,
       inflationRate: 3,
       years: 5,
@@ -33,6 +35,7 @@ describe('calculateCompoundInterest', () => {
   test('nominal value should compound correctly', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 10, // 10% annual return
       inflationRate: 0,
       years: 3,
@@ -41,18 +44,19 @@ describe('calculateCompoundInterest', () => {
     const result = calculateCompoundInterest(inputs);
 
     // Year 0: 10000
-    // Year 1: 10000 * 1.10 = 11000
-    // Year 2: 10000 * 1.10^2 = 12100
-    // Year 3: 10000 * 1.10^3 = 13310
+    // Year 1: 10000 * (1 + 0.10/12)^12 ≈ 11047.13
+    // Year 2: 10000 * (1 + 0.10/12)^24 ≈ 12203.91
+    // Year 3: 10000 * (1 + 0.10/12)^36 ≈ 13481.82
     expect(result[0].nominalValue).toBe(10000);
-    expect(result[1].nominalValue).toBe(11000);
-    expect(result[2].nominalValue).toBe(12100);
-    expect(result[3].nominalValue).toBe(13310);
+    expect(result[1].nominalValue).toBeCloseTo(11047.13, 0);
+    expect(result[2].nominalValue).toBeCloseTo(12203.91, 0);
+    expect(result[3].nominalValue).toBeCloseTo(13481.82, 0);
   });
 
-  test('real value should use (nominal - inflation) as real rate', () => {
+  test('real value should use Fisher equation for real rate', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 10, // 10% nominal
       inflationRate: 3, // 3% inflation
       years: 1,
@@ -60,14 +64,18 @@ describe('calculateCompoundInterest', () => {
 
     const result = calculateCompoundInterest(inputs);
 
-    // Real rate = 10% - 3% = 7%
-    // Year 1 real value = 10000 * 1.07 = 10700
-    expect(result[1].realValue).toBe(10700);
+    // Fisher equation: real rate = (1 + 0.10) / (1 + 0.03) - 1 ≈ 6.796%
+    // Monthly real rate = 6.796% / 12 ≈ 0.5663%
+    // Year 1 real value = 10000 * (1 + 0.06796/12)^12 ≈ 10700.47
+    const annualRealRate = (1 + 0.10) / (1 + 0.03) - 1;
+    const expectedReal = 10000 * Math.pow(1 + annualRealRate / 12, 12);
+    expect(result[1].realValue).toBeCloseTo(expectedReal, 0);
   });
 
-  test('real value should compound at (nominal - inflation) rate', () => {
+  test('real value should compound using Fisher equation', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 10, // 10% nominal
       inflationRate: 3, // 3% inflation
       years: 3,
@@ -75,20 +83,20 @@ describe('calculateCompoundInterest', () => {
 
     const result = calculateCompoundInterest(inputs);
 
-    // Real rate = 7%
-    // Year 0: 10000
-    // Year 1: 10000 * 1.07 = 10700
-    // Year 2: 10000 * 1.07^2 = 11449
-    // Year 3: 10000 * 1.07^3 = 12250.43
+    // Fisher equation: real rate = (1 + 0.10) / (1 + 0.03) - 1 ≈ 6.796%
+    const annualRealRate = (1 + 0.10) / (1 + 0.03) - 1;
+    const monthlyRealRate = annualRealRate / 12;
+
     expect(result[0].realValue).toBe(10000);
-    expect(result[1].realValue).toBe(10700);
-    expect(result[2].realValue).toBe(11449);
-    expect(result[3].realValue).toBeCloseTo(12250.43, 0);
+    expect(result[1].realValue).toBeCloseTo(10000 * Math.pow(1 + monthlyRealRate, 12), 0);
+    expect(result[2].realValue).toBeCloseTo(10000 * Math.pow(1 + monthlyRealRate, 24), 0);
+    expect(result[3].realValue).toBeCloseTo(10000 * Math.pow(1 + monthlyRealRate, 36), 0);
   });
 
   test('real value should be less than nominal when inflation > 0', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 7,
       inflationRate: 3,
       years: 10,
@@ -105,6 +113,7 @@ describe('calculateCompoundInterest', () => {
   test('real value should decrease when inflation > nominal return', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 5, // 5% return
       inflationRate: 10, // 10% inflation (higher than return)
       years: 5,
@@ -112,7 +121,7 @@ describe('calculateCompoundInterest', () => {
 
     const result = calculateCompoundInterest(inputs);
 
-    // Real rate = 5% - 10% = -5% (negative)
+    // Fisher equation: real rate = (1 + 0.05) / (1 + 0.10) - 1 ≈ -4.545% (negative)
     // Real value should decrease each year
     for (let i = 1; i < result.length; i++) {
       expect(result[i].realValue).toBeLessThan(result[i - 1].realValue);
@@ -127,6 +136,7 @@ describe('calculateCompoundInterest', () => {
   test('real value should equal nominal when inflation is 0', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 7,
       inflationRate: 0,
       years: 5,
@@ -142,6 +152,7 @@ describe('calculateCompoundInterest', () => {
   test('should handle zero return rate', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 0,
       inflationRate: 3,
       years: 5,
@@ -154,7 +165,7 @@ describe('calculateCompoundInterest', () => {
       expect(point.nominalValue).toBe(10000);
     }
 
-    // Real decreases due to inflation (real rate = 0% - 3% = -3%)
+    // Real decreases due to inflation (Fisher: real rate = 1/1.03 - 1 ≈ -2.91%)
     for (let i = 1; i < result.length; i++) {
       expect(result[i].realValue).toBeLessThan(result[i - 1].realValue);
     }
@@ -163,6 +174,7 @@ describe('calculateCompoundInterest', () => {
   test('should handle large numbers correctly', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 1000000,
+      monthlyContribution: 0,
       annualReturn: 12,
       inflationRate: 2,
       years: 30,
@@ -170,19 +182,22 @@ describe('calculateCompoundInterest', () => {
 
     const result = calculateCompoundInterest(inputs);
 
-    // After 30 years at 12% nominal: 1M * (1.12)^30 ≈ $29.96M
-    const expectedNominal = 1000000 * Math.pow(1.12, 30);
+    // Monthly compounding: 1M * (1 + 0.12/12)^360
+    const monthlyNominalRate = 0.12 / 12;
+    const expectedNominal = 1000000 * Math.pow(1 + monthlyNominalRate, 360);
     expect(result[30].nominalValue).toBeCloseTo(expectedNominal, 0);
 
-    // Real rate = 12% - 2% = 10%
-    // After 30 years at 10% real: 1M * (1.10)^30 ≈ $17.45M
-    const expectedReal = 1000000 * Math.pow(1.10, 30);
+    // Fisher equation: real rate = (1 + 0.12) / (1 + 0.02) - 1 ≈ 9.804%
+    const annualRealRate = (1 + 0.12) / (1 + 0.02) - 1;
+    const monthlyRealRate = annualRealRate / 12;
+    const expectedReal = 1000000 * Math.pow(1 + monthlyRealRate, 360);
     expect(result[30].realValue).toBeCloseTo(expectedReal, 0);
   });
 
   test('specific case: 10% return with 32% inflation should show declining real value', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 100022,
+      monthlyContribution: 0,
       annualReturn: 10,
       inflationRate: 32,
       years: 7,
@@ -190,9 +205,9 @@ describe('calculateCompoundInterest', () => {
 
     const result = calculateCompoundInterest(inputs);
 
-    // Real rate = 10% - 32% = -22%
-    const realRate = 0.10 - 0.32;
-    expect(realRate).toBe(-0.22);
+    // Fisher equation: real rate = (1 + 0.10) / (1 + 0.32) - 1 ≈ -16.67%
+    const annualRealRate = (1 + 0.10) / (1 + 0.32) - 1;
+    expect(annualRealRate).toBeCloseTo(-0.1667, 2);
 
     // Real value should decrease each year because real rate is negative
     for (let i = 1; i < result.length; i++) {
@@ -204,9 +219,11 @@ describe('calculateCompoundInterest', () => {
       expect(result[i].nominalValue).toBeGreaterThan(result[i - 1].nominalValue);
     }
 
-    // Verify specific year 7 values
-    const expectedNominalYear7 = 100022 * Math.pow(1.10, 7);
-    const expectedRealYear7 = 100022 * Math.pow(1 + realRate, 7);
+    // Verify year 7 values with monthly compounding
+    const monthlyNominalRate = 0.10 / 12;
+    const monthlyRealRate = annualRealRate / 12;
+    const expectedNominalYear7 = 100022 * Math.pow(1 + monthlyNominalRate, 84);
+    const expectedRealYear7 = 100022 * Math.pow(1 + monthlyRealRate, 84);
 
     expect(result[7].nominalValue).toBeCloseTo(expectedNominalYear7, 0);
     expect(result[7].realValue).toBeCloseTo(expectedRealYear7, 0);
@@ -215,6 +232,7 @@ describe('calculateCompoundInterest', () => {
   test('real value should grow when return > inflation', () => {
     const inputs: CalculatorInputs = {
       initialInvestment: 10000,
+      monthlyContribution: 0,
       annualReturn: 10,
       inflationRate: 3,
       years: 5,
@@ -222,11 +240,32 @@ describe('calculateCompoundInterest', () => {
 
     const result = calculateCompoundInterest(inputs);
 
-    // Real rate = 10% - 3% = 7% (positive)
+    // Fisher equation: real rate = (1 + 0.10) / (1 + 0.03) - 1 ≈ 6.8% (positive)
     // Real value should increase each year
     for (let i = 1; i < result.length; i++) {
       expect(result[i].realValue).toBeGreaterThan(result[i - 1].realValue);
     }
+  });
+
+  test('should handle monthly contributions', () => {
+    const inputs: CalculatorInputs = {
+      initialInvestment: 10000,
+      monthlyContribution: 1000,
+      annualReturn: 10,
+      inflationRate: 0,
+      years: 1,
+    };
+
+    const result = calculateCompoundInterest(inputs);
+
+    // FV = P(1+r)^n + PMT × [((1+r)^n - 1) / r]
+    // where r = 0.10/12, n = 12
+    const monthlyRate = 0.10 / 12;
+    const months = 12;
+    const growthFactor = Math.pow(1 + monthlyRate, months);
+    const expected = 10000 * growthFactor + 1000 * ((growthFactor - 1) / monthlyRate);
+
+    expect(result[1].nominalValue).toBeCloseTo(expected, 0);
   });
 });
 

@@ -110,11 +110,23 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
     return dataPoint;
   });
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipPayloadEntry {
+    stroke?: string;
+    name?: string;
+    value?: number;
+  }
+
+  interface CustomTooltipProps {
+    active?: boolean;
+    payload?: TooltipPayloadEntry[];
+    label?: number;
+  }
+
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (!active || !payload) return null;
 
     // Filter out Area entries (they don't have stroke) and entries with UUID-like names
-    const filteredPayload = payload.filter((entry: any) =>
+    const filteredPayload = payload.filter((entry) =>
       entry.stroke && entry.name && !entry.name.includes('_nominal') && !entry.name.includes('_real')
     );
 
@@ -125,7 +137,7 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
         <div className="chart-tooltip-header">
           Year {label}
         </div>
-        {filteredPayload.map((entry: any, index: number) => (
+        {filteredPayload.map((entry, index: number) => (
           <div key={index} className="chart-tooltip-item">
             <div
               className="chart-tooltip-dot"
@@ -138,7 +150,7 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
               className="chart-tooltip-value"
               style={{ color: entry.stroke }}
             >
-              {formatCurrency(entry.value, t.currency)}
+              {formatCurrency(entry.value ?? 0, t.currency)}
             </span>
           </div>
         ))}
@@ -181,6 +193,25 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
             >
               {t.both}
             </button>
+          </div>
+          <div className="fisher-tooltip">
+            <button type="button" className="info-btn" aria-label="Learn about real returns calculation">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+              </svg>
+            </button>
+            <div className="tooltip-content">
+              <p>{t.fisherTooltipText}</p>
+              <code>(1 + nominal) / (1 + inflation) - 1</code>
+              <a
+                href="https://en.wikipedia.org/wiki/Fisher_equation"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t.fisherLearnMore}
+              </a>
+            </div>
           </div>
 
           <div className="zoom-controls">

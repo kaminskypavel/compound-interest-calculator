@@ -43,6 +43,8 @@ interface TranslationStrings {
   exporting: string;
   png: string;
   perMonth: string;
+  fisherTooltipText: string;
+  fisherLearnMore: string;
   randomNames: string[];
 }
 
@@ -99,6 +101,8 @@ export const translations: Record<Language, TranslationStrings> = {
     exporting: 'Exporting...',
     png: 'PNG',
     perMonth: '/mo',
+    fisherTooltipText: 'Real returns are calculated using the Fisher equation, which provides a more accurate adjustment for inflation than simple subtraction.',
+    fisherLearnMore: 'Learn more about the Fisher equation →',
 
     // Random scenario names
     randomNames: [
@@ -159,6 +163,8 @@ export const translations: Record<Language, TranslationStrings> = {
     exporting: 'מייצא...',
     png: 'PNG',
     perMonth: '/חודש',
+    fisherTooltipText: 'התשואות הריאליות מחושבות באמצעות משוואת פישר, המספקת התאמה מדויקת יותר לאינפלציה מאשר חיסור פשוט.',
+    fisherLearnMore: 'למידע נוסף על משוואת פישר ←',
 
     // Random scenario names
     randomNames: [

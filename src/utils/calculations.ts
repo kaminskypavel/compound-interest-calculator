@@ -7,7 +7,11 @@ export function calculateCompoundInterest(inputs: CalculatorInputs): YearlyData[
 
   // Monthly rates
   const monthlyNominalRate = annualReturn / 100 / 12;
-  const monthlyRealRate = (annualReturn - inflationRate) / 100 / 12;
+
+  // Use Fisher equation for real rate: (1 + nominal) / (1 + inflation) - 1
+  // This is more accurate than the simple approximation (nominal - inflation)
+  const annualRealRate = (1 + annualReturn / 100) / (1 + inflationRate / 100) - 1;
+  const monthlyRealRate = annualRealRate / 12;
 
   for (let year = 0; year <= years; year++) {
     const months = year * 12;
