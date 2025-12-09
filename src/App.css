@@ -112,7 +112,13 @@
 .btn-lang:hover {
   background: var(--color-bg-input);
   border-color: var(--color-accent);
-  color: var(--color-accent);
+}
+
+.flag-icon {
+  width: 24px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 2px;
 }
 
 /* Main Layout */

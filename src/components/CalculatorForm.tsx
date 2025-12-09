@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,15 +15,16 @@ import {
 import type { CalculatorInputs } from '../types';
 import { useI18nStore } from '../stores/i18nStore';
 
-const formSchema = z.object({
-  scenarioName: z.string().min(1, 'Name is required'),
-  initialInvestment: z.number().min(0, 'Must be positive'),
-  annualReturn: z.number().min(0).max(100),
-  inflationRate: z.number().min(0).max(100),
-  years: z.number().min(1).max(100),
-});
+const createFormSchema = (t: { nameRequired: string; mustBePositive: string }) =>
+  z.object({
+    scenarioName: z.string().min(1, t.nameRequired),
+    initialInvestment: z.number().min(0, t.mustBePositive),
+    annualReturn: z.number().min(0).max(100),
+    inflationRate: z.number().min(0).max(100),
+    years: z.number().min(1).max(100),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 interface Props {
   onCalculate: (inputs: CalculatorInputs, name: string) => void;
@@ -94,6 +96,8 @@ function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }
 
 export function CalculatorForm({ onCalculate }: Props) {
   const { t } = useI18nStore();
+
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

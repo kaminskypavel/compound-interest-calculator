@@ -22,6 +22,7 @@ interface TranslationStrings {
   addScenario: string;
   random: string;
   nameRequired: string;
+  mustBePositive: string;
   displayMode: string;
   nominal: string;
   real: string;
@@ -64,6 +65,7 @@ export const translations: Record<Language, TranslationStrings> = {
     addScenario: 'Add Scenario',
     random: 'Random',
     nameRequired: 'Name is required',
+    mustBePositive: 'Must be positive',
 
     // Display Mode
     displayMode: 'Display Mode',
@@ -117,6 +119,7 @@ export const translations: Record<Language, TranslationStrings> = {
     addScenario: 'הוסף תרחיש',
     random: 'אקראי',
     nameRequired: 'נדרש שם',
+    mustBePositive: 'חייב להיות חיובי',
 
     // Display Mode
     displayMode: 'מצב תצוגה',

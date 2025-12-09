@@ -72,7 +72,11 @@ function App() {
           </div>
           <div className="header-actions">
             <button onClick={toggleLanguage} className="btn-lang" title={language === 'en' ? 'Switch to Hebrew' : 'Switch to English'}>
-              {language === 'en' ? '🇺🇸' : '🇮🇱'}
+              <img
+                src={`${import.meta.env.BASE_URL}flags/${language === 'en' ? 'us' : 'il'}.svg`}
+                alt={language === 'en' ? 'English' : 'עברית'}
+                className="flag-icon"
+              />
             </button>
             {scenarios.length > 0 && (
               <>
