@@ -841,13 +841,13 @@
 .download-btn {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  justify-content: center;
+  width: 32px !important;
   height: 32px !important;
-  padding: var(--space-xs) var(--space-sm) !important;
+  padding: var(--space-xs) !important;
   background: var(--color-bg-elevated) !important;
   border: 1px solid var(--color-border) !important;
   color: var(--color-text-secondary) !important;
-  font-size: 0.75rem !important;
 }
 
 .download-btn:hover:not(:disabled) {
@@ -1058,14 +1058,6 @@
   .mode-btn {
     padding: var(--space-xs) var(--space-sm);
     font-size: 0.7rem;
-  }
-
-  .download-btn {
-    padding: var(--space-xs) var(--space-sm) !important;
-  }
-
-  .download-btn span {
-    display: none;
   }
 
   .fisher-tooltip-content {

@@ -89,7 +89,7 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
         </div>
         <div className="chart-placeholder">
           <div className="chart-placeholder-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M3 3v18h18" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M7 16l4-4 4 4 5-6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
