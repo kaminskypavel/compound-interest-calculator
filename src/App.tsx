@@ -71,8 +71,8 @@ function App() {
             <span className="logo-accent">{t.logoAccent}</span>
           </div>
           <div className="header-actions">
-            <button onClick={toggleLanguage} className="btn-lang">
-              {language === 'en' ? 'עב' : 'EN'}
+            <button onClick={toggleLanguage} className="btn-lang" title={language === 'en' ? 'Switch to Hebrew' : 'Switch to English'}>
+              {language === 'en' ? '🇺🇸' : '🇮🇱'}
             </button>
             {scenarios.length > 0 && (
               <>
@@ -147,6 +147,17 @@ function App() {
           />
         </section>
       </main>
+
+      <footer className="footer">
+        <div className="footer-content">
+          <span className="footer-text">
+            Developed with <span className="footer-heart">♥</span> by{' '}
+            <a href="https://www.pavel-kaminsky.com" target="_blank" rel="noopener noreferrer" className="footer-link">
+              Pavel "PK" Kaminsky
+            </a>
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }

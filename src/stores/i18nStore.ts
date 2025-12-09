@@ -30,6 +30,7 @@ interface TranslationStrings {
   clearAll: string;
   finalNominal: string;
   finalReal: string;
+  growth: string;
   portfolioGrowth: string;
   visualizeTrajectories: string;
   noScenariosYet: string;
@@ -75,6 +76,7 @@ export const translations: Record<Language, TranslationStrings> = {
     clearAll: 'Clear all',
     finalNominal: 'Final (Nominal)',
     finalReal: 'Final (Real)',
+    growth: 'Growth',
 
     // Chart
     portfolioGrowth: 'Portfolio Growth',
@@ -127,6 +129,7 @@ export const translations: Record<Language, TranslationStrings> = {
     clearAll: 'נקה הכל',
     finalNominal: 'סופי (נומינלי)',
     finalReal: 'סופי (ריאלי)',
+    growth: 'צמיחה',
 
     // Chart
     portfolioGrowth: 'צמיחת תיק ההשקעות',

@@ -30,52 +30,63 @@ export function ScenarioList({ scenarios, onRemove, onClear }: Props) {
       <div className="scenarios">
         {scenarios.map((scenario) => {
           const finalYear = scenario.yearlyData[scenario.yearlyData.length - 1];
+          const growth = ((finalYear.nominalValue / scenario.inputs.initialInvestment - 1) * 100).toFixed(0);
           return (
             <div key={scenario.id} className="scenario-card">
               <div
                 className="scenario-color-bar"
                 style={{ backgroundColor: scenario.color }}
               />
-              <div className="scenario-content">
-                <div className="scenario-name">{scenario.name}</div>
-                <div className="scenario-params">
-                  <span className="scenario-param">
-                    {formatCurrency(scenario.inputs.initialInvestment)}
-                  </span>
-                  <span className="scenario-param">
-                    {scenario.inputs.annualReturn}% return
-                  </span>
-                  <span className="scenario-param">
-                    {scenario.inputs.inflationRate}% infl.
-                  </span>
-                  <span className="scenario-param">
-                    {scenario.inputs.years}y
-                  </span>
+              <div className="scenario-card-content">
+                <div className="scenario-card-header">
+                  <div className="scenario-name">{scenario.name}</div>
+                  <button
+                    onClick={() => onRemove(scenario.id)}
+                    className="btn-remove"
+                    aria-label="Remove scenario"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
+
+                <div className="scenario-params">
+                  <div className="scenario-param">
+                    <span className="param-label">{t.initialInvestment}</span>
+                    <span className="param-value">{formatCurrency(scenario.inputs.initialInvestment)}</span>
+                  </div>
+                  <div className="scenario-param">
+                    <span className="param-label">{t.annualReturn}</span>
+                    <span className="param-value">{scenario.inputs.annualReturn}%</span>
+                  </div>
+                  <div className="scenario-param">
+                    <span className="param-label">{t.inflationRate}</span>
+                    <span className="param-value">{scenario.inputs.inflationRate}%</span>
+                  </div>
+                  <div className="scenario-param">
+                    <span className="param-label">{t.timeHorizon}</span>
+                    <span className="param-value">{scenario.inputs.years} {t.years}</span>
+                  </div>
+                </div>
+
+                <div className="scenario-divider" />
+
                 <div className="scenario-results">
                   <div className="scenario-result">
-                    <span className="scenario-result-label">{t.nominal}</span>
-                    <span className="scenario-result-value nominal">
-                      {formatCurrency(finalYear.nominalValue)}
-                    </span>
+                    <span className="result-label">{t.nominal}</span>
+                    <span className="result-value nominal">{formatCurrency(finalYear.nominalValue)}</span>
                   </div>
                   <div className="scenario-result">
-                    <span className="scenario-result-label">{t.real}</span>
-                    <span className="scenario-result-value real">
-                      {formatCurrency(finalYear.realValue)}
-                    </span>
+                    <span className="result-label">{t.real}</span>
+                    <span className="result-value real">{formatCurrency(finalYear.realValue)}</span>
+                  </div>
+                  <div className="scenario-result growth">
+                    <span className="result-label">{t.growth}</span>
+                    <span className="result-value">+{growth}%</span>
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => onRemove(scenario.id)}
-                className="btn-remove"
-                aria-label="Remove scenario"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
             </div>
           );
         })}
