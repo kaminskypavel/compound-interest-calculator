@@ -43,6 +43,7 @@ interface NumberInputProps {
 
 function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }: NumberInputProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const [inputValue, setInputValue] = useState(String(value));
 
   const increment = () => {
     const newValue = value + step;
@@ -58,8 +59,12 @@ function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }
     }
   };
 
-  // Format number with thousand separators
+  // Format number with thousand separators, preserving decimals for rates
   const formatNumber = (num: number): string => {
+    // Check if step indicates we want decimal display
+    if (step < 1) {
+      return num.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+    }
     return num.toLocaleString('en-US');
   };
 
@@ -86,9 +91,18 @@ function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }
       <input
         type="text"
         inputMode="decimal"
-        value={isFocused ? value : formatNumber(value)}
-        onChange={(e) => onChange(parseNumber(e.target.value))}
-        onFocus={() => setIsFocused(true)}
+        value={isFocused ? inputValue : formatNumber(value)}
+        onChange={(e) => {
+          setInputValue(e.target.value);
+          const parsed = parseNumber(e.target.value);
+          if (!isNaN(parsed)) {
+            onChange(parsed);
+          }
+        }}
+        onFocus={() => {
+          setIsFocused(true);
+          setInputValue(String(value));
+        }}
         onBlur={() => setIsFocused(false)}
         className="number-input-field"
       />
