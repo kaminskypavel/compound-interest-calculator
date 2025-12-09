@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import {
   Line,
   XAxis,
@@ -15,7 +15,7 @@ import { toPng } from 'html-to-image';
 import type { Scenario } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useI18nStore } from '../stores/i18nStore';
 
 type DisplayMode = 'nominal' | 'real' | 'both';
@@ -32,7 +32,15 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
   const chartRef = useRef<HTMLDivElement>(null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [isExporting, setIsExporting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { t } = useI18nStore();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleZoomIn = () => {
     setZoomLevel((prev) => Math.min(prev + 25, 200));
@@ -159,122 +167,134 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
     );
   };
 
-  const chartHeight = Math.max(400, 400 * (zoomLevel / 100));
+  const baseHeight = isMobile ? 320 : 400;
+  const chartHeight = Math.max(baseHeight, baseHeight * (zoomLevel / 100));
+  const chartMargin = isMobile
+    ? { top: 10, right: 10, left: 0, bottom: 50 }
+    : { top: 20, right: 30, left: 20, bottom: 60 };
 
   return (
     <div className="chart-section-inner">
       <div className="chart-header">
         <div className="chart-title-group">
-          <h2 className="chart-title">{t.portfolioGrowth}</h2>
+          <div className="chart-title-row">
+            <h2 className="chart-title">{t.portfolioGrowth}</h2>
+            <Popover defaultOpen>
+              <PopoverTrigger asChild>
+                <button type="button" className="info-btn" aria-label="Learn about real returns calculation">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                  </svg>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="bottom" align="start" className="fisher-tooltip-content">
+                <p>{t.fisherTooltipText}</p>
+                <code>(1 + nominal) / (1 + inflation) - 1</code>
+                <a
+                  href="https://en.wikipedia.org/wiki/Fisher_equation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t.fisherLearnMore}
+                </a>
+              </PopoverContent>
+            </Popover>
+          </div>
           <p className="chart-subtitle">
             {t.scenariosCompared(scenarios.length, maxYears)}
           </p>
         </div>
 
         <div className="chart-controls">
-          <div className="display-mode-toggle">
-            <button
-              type="button"
-              className={`mode-btn ${displayMode === 'nominal' ? 'active' : ''}`}
-              onClick={() => onDisplayModeChange('nominal')}
-            >
-              {t.nominal}
-            </button>
-            <button
-              type="button"
-              className={`mode-btn ${displayMode === 'real' ? 'active' : ''}`}
-              onClick={() => onDisplayModeChange('real')}
-            >
-              {t.real}
-            </button>
-            <button
-              type="button"
-              className={`mode-btn ${displayMode === 'both' ? 'active' : ''}`}
-              onClick={() => onDisplayModeChange('both')}
-            >
-              {t.both}
-            </button>
-          </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button type="button" className="info-btn" aria-label="Learn about real returns calculation">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 16v-4M12 8h.01"/>
-                </svg>
+          <div className="chart-controls-left">
+            <div className="display-mode-toggle">
+              <button
+                type="button"
+                className={`mode-btn ${displayMode === 'nominal' ? 'active' : ''}`}
+                onClick={() => onDisplayModeChange('nominal')}
+              >
+                {t.nominal}
               </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" className="fisher-tooltip-content">
-              <p>{t.fisherTooltipText}</p>
-              <code>(1 + nominal) / (1 + inflation) - 1</code>
-              <a
-                href="https://en.wikipedia.org/wiki/Fisher_equation"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                className={`mode-btn ${displayMode === 'real' ? 'active' : ''}`}
+                onClick={() => onDisplayModeChange('real')}
               >
-                {t.fisherLearnMore}
-              </a>
-            </TooltipContent>
-          </Tooltip>
-
-          <div className="zoom-controls">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleZoomOut}
-              disabled={zoomLevel <= 50}
-              className="zoom-btn"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="M21 21l-4.35-4.35M8 11h6"/>
-              </svg>
-            </Button>
-            <span className="zoom-level">{zoomLevel}%</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleZoomIn}
-              disabled={zoomLevel >= 200}
-              className="zoom-btn"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
-              </svg>
-            </Button>
-            {zoomLevel !== 100 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleResetZoom}
-                className="zoom-reset"
+                {t.real}
+              </button>
+              <button
+                type="button"
+                className={`mode-btn ${displayMode === 'both' ? 'active' : ''}`}
+                onClick={() => onDisplayModeChange('both')}
               >
-                Reset
-              </Button>
-            )}
+                {t.both}
+              </button>
+            </div>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDownloadPng}
-            disabled={isExporting}
-            className="download-btn"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeLinecap="round" strokeLinejoin="round"/>
-              <polyline points="7 10 12 15 17 10" strokeLinecap="round" strokeLinejoin="round"/>
-              <line x1="12" y1="15" x2="12" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            {isExporting ? t.exporting : t.png}
+          <div className="chart-controls-right">
+            {!isMobile && (
+              <div className="zoom-controls">
+                {zoomLevel !== 100 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResetZoom}
+                    className="zoom-reset"
+                  >
+                    Reset
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleZoomOut}
+                  disabled={zoomLevel <= 50}
+                  className="zoom-btn"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35M8 11h6"/>
+                  </svg>
+                </Button>
+                <span className="zoom-level">{zoomLevel}%</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleZoomIn}
+                  disabled={zoomLevel >= 200}
+                  className="zoom-btn"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+                  </svg>
+                </Button>
+              </div>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadPng}
+              disabled={isExporting}
+              className="download-btn"
+              aria-label="Download chart as PNG"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="7 10 12 15 17 10" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="12" y1="15" x2="12" y2="3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
           </Button>
+          </div>
         </div>
       </div>
 
       <div className="chart-container" ref={chartRef}>
         <ResponsiveContainer width="100%" height={chartHeight}>
-          <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+          <ComposedChart data={chartData} margin={chartMargin}>
             <defs>
               {scenarios.map((scenario) => (
                 <linearGradient
@@ -300,10 +320,10 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
             <XAxis
               dataKey="year"
               stroke="var(--color-text-tertiary)"
-              tick={{ fill: 'var(--color-text-tertiary)', fontSize: 12 }}
+              tick={{ fill: 'var(--color-text-tertiary)', fontSize: isMobile ? 10 : 12 }}
               tickLine={{ stroke: 'var(--color-border-subtle)' }}
               axisLine={{ stroke: 'var(--color-border-subtle)' }}
-              label={{
+              label={isMobile ? undefined : {
                 value: 'Years',
                 position: 'insideBottom',
                 offset: -10,
@@ -320,20 +340,20 @@ export function ResultsChart({ scenarios, showReal, showNominal, displayMode, on
                 return `${symbol}${value}`;
               }}
               stroke="var(--color-text-tertiary)"
-              tick={{ fill: 'var(--color-text-tertiary)', fontSize: 12 }}
+              tick={{ fill: 'var(--color-text-tertiary)', fontSize: isMobile ? 10 : 12 }}
               tickLine={{ stroke: 'var(--color-border-subtle)' }}
               axisLine={{ stroke: 'var(--color-border-subtle)' }}
-              width={70}
+              width={isMobile ? 50 : 70}
             />
 
             <RechartsTooltip content={<CustomTooltip />} />
 
             <Brush
               dataKey="year"
-              height={30}
+              height={isMobile ? 25 : 30}
               stroke="var(--color-accent)"
               fill="var(--color-bg-card)"
-              travellerWidth={10}
+              travellerWidth={isMobile ? 8 : 10}
             />
 
             <ReferenceLine y={0} stroke="var(--color-border)" />
