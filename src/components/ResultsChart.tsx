@@ -230,14 +230,15 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
                   type="monotone"
                   dataKey={`${scenario.id}_real`}
                   name={`${scenario.name} (Real)`}
-                  stroke={scenario.color}
+                  stroke={scenarios.length === 1 ? '#f472b6' : scenario.color}
                   strokeWidth={2}
                   strokeDasharray="6 4"
                   dot={false}
+                  strokeOpacity={scenarios.length === 1 ? 1 : 0.7}
                   activeDot={{
                     r: 5,
                     fill: 'var(--color-bg-card)',
-                    stroke: scenario.color,
+                    stroke: scenarios.length === 1 ? '#f472b6' : scenario.color,
                     strokeWidth: 2,
                   }}
                 />

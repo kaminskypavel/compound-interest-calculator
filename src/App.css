@@ -354,6 +354,40 @@
   margin-left: var(--space-xs);
 }
 
+/* Segmented Toggle */
+.segmented-toggle {
+  display: flex;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toggle-btn:hover:not(.active) {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-elevated);
+}
+
+.toggle-btn.active {
+  background: var(--color-accent);
+  color: var(--color-bg-deep);
+}
+
 /* Scenario List */
 .scenario-list {
   composes: card;
@@ -617,10 +651,6 @@
 
 .legend-line.nominal {
   background: var(--color-nominal);
-}
-
-.legend-line.real {
-  background: var(--color-real);
 }
 
 .legend-line.dashed {
