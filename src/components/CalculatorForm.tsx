@@ -9,11 +9,12 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
 import type { CalculatorInputs } from '../types';
 
 const formSchema = z.object({
-  scenarioName: z.string().optional(),
+  scenarioName: z.string().min(1, 'Name is required'),
   initialInvestment: z.coerce.number().min(0, 'Must be positive'),
   annualReturn: z.coerce.number().min(0).max(100),
   inflationRate: z.coerce.number().min(0).max(100),
@@ -25,6 +26,77 @@ type FormValues = z.infer<typeof formSchema>;
 interface Props {
   onCalculate: (inputs: CalculatorInputs, name: string) => void;
 }
+
+interface NumberInputProps {
+  value: number;
+  onChange: (value: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  prefix?: string;
+  suffix?: string;
+}
+
+function NumberInput({ value, onChange, min = 0, max, step = 1, prefix, suffix }: NumberInputProps) {
+  const increment = () => {
+    const newValue = value + step;
+    if (max === undefined || newValue <= max) {
+      onChange(Math.round(newValue * 100) / 100);
+    }
+  };
+
+  const decrement = () => {
+    const newValue = value - step;
+    if (newValue >= min) {
+      onChange(Math.round(newValue * 100) / 100);
+    }
+  };
+
+  return (
+    <div className="number-input">
+      <button
+        type="button"
+        className="number-input-btn left"
+        onClick={decrement}
+        disabled={value <= min}
+        tabIndex={-1}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M5 12h14" strokeLinecap="round" />
+        </svg>
+      </button>
+      {prefix && <span className="number-input-addon left">{prefix}</span>}
+      <Input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        min={min}
+        max={max}
+        step={step}
+        className="number-input-field"
+      />
+      {suffix && <span className="number-input-addon right">{suffix}</span>}
+      <button
+        type="button"
+        className="number-input-btn right"
+        onClick={increment}
+        disabled={max !== undefined && value >= max}
+        tabIndex={-1}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+// Random scenario names for dev mode
+const randomNames = [
+  'Conservative', 'Aggressive', 'Balanced', 'Growth', 'Income',
+  'S&P 500', 'Tech Heavy', 'Bonds Mix', 'Real Estate', 'International',
+  'Retirement', 'College Fund', 'Emergency', 'Vacation', 'House Down Payment'
+];
 
 export function CalculatorForm({ onCalculate }: Props) {
   const form = useForm<FormValues>({
@@ -45,10 +117,27 @@ export function CalculatorForm({ onCalculate }: Props) {
       inflationRate: values.inflationRate,
       years: values.years,
     };
-    const name = values.scenarioName?.trim() || `$${inputs.initialInvestment.toLocaleString()} @ ${inputs.annualReturn}%`;
-    onCalculate(inputs, name);
+    onCalculate(inputs, values.scenarioName.trim());
     form.setValue('scenarioName', '');
   };
+
+  const addRandomScenario = () => {
+    const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
+    const randomInvestment = Math.round((Math.random() * 90000 + 10000) / 1000) * 1000;
+    const randomReturn = Math.round((Math.random() * 12 + 3) * 10) / 10;
+    const randomInflation = Math.round((Math.random() * 4 + 1) * 10) / 10;
+    const randomYears = Math.floor(Math.random() * 35 + 5);
+
+    const inputs: CalculatorInputs = {
+      initialInvestment: randomInvestment,
+      annualReturn: randomReturn,
+      inflationRate: randomInflation,
+      years: randomYears,
+    };
+    onCalculate(inputs, `${randomName} $${randomInvestment.toLocaleString()}`);
+  };
+
+  const isDev = import.meta.env.DEV;
 
   return (
     <Form {...form}>
@@ -58,10 +147,10 @@ export function CalculatorForm({ onCalculate }: Props) {
             control={form.control}
             name="scenarioName"
             render={({ field }) => (
-              <FormItem className="form-item">
+              <FormItem className="form-item form-item-name">
                 <FormLabel className="form-label">
                   Scenario Name
-                  <span className="form-label-hint">optional</span>
+                  <span className="form-label-hint">required</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -70,6 +159,7 @@ export function CalculatorForm({ onCalculate }: Props) {
                     className="form-input"
                   />
                 </FormControl>
+                <FormMessage className="form-error" />
               </FormItem>
             )}
           />
@@ -81,16 +171,13 @@ export function CalculatorForm({ onCalculate }: Props) {
               <FormItem className="form-item">
                 <FormLabel className="form-label">Initial Investment</FormLabel>
                 <FormControl>
-                  <div className="input-with-addon">
-                    <span className="input-addon left">$</span>
-                    <Input
-                      {...field}
-                      type="number"
-                      min="0"
-                      step="any"
-                      className="form-input with-left-addon"
-                    />
-                  </div>
+                  <NumberInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    min={0}
+                    step={1000}
+                    prefix="$"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -106,17 +193,14 @@ export function CalculatorForm({ onCalculate }: Props) {
                   <span className="form-label-hint">expected</span>
                 </FormLabel>
                 <FormControl>
-                  <div className="input-with-addon">
-                    <Input
-                      {...field}
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      className="form-input with-right-addon"
-                    />
-                    <span className="input-addon right">%</span>
-                  </div>
+                  <NumberInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    suffix="%"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -132,17 +216,14 @@ export function CalculatorForm({ onCalculate }: Props) {
                   <span className="form-label-hint">expected</span>
                 </FormLabel>
                 <FormControl>
-                  <div className="input-with-addon">
-                    <Input
-                      {...field}
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      className="form-input with-right-addon"
-                    />
-                    <span className="input-addon right">%</span>
-                  </div>
+                  <NumberInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    suffix="%"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -155,28 +236,51 @@ export function CalculatorForm({ onCalculate }: Props) {
               <FormItem className="form-item">
                 <FormLabel className="form-label">Time Horizon</FormLabel>
                 <FormControl>
-                  <div className="input-with-addon">
-                    <Input
-                      {...field}
-                      type="number"
-                      min="1"
-                      max="100"
-                      className="form-input with-right-addon"
-                    />
-                    <span className="input-addon right">yrs</span>
-                  </div>
+                  <NumberInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    min={1}
+                    max={100}
+                    step={1}
+                    suffix="yrs"
+                  />
                 </FormControl>
               </FormItem>
             )}
           />
 
           <div className="form-item form-submit">
-            <Button type="submit" className="btn-add-scenario">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Add Scenario
-            </Button>
+            <div className="form-buttons">
+              <Button type="submit" className="btn-add-scenario">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Add Scenario
+              </Button>
+              {isDev && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="btn-random"
+                  onClick={addRandomScenario}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="2" y="2" width="8" height="8" rx="1" />
+                    <rect x="14" y="2" width="8" height="8" rx="1" />
+                    <rect x="2" y="14" width="8" height="8" rx="1" />
+                    <rect x="14" y="14" width="8" height="8" rx="1" />
+                    <circle cx="5" cy="5" r="1" fill="currentColor" />
+                    <circle cx="19" cy="5" r="1" fill="currentColor" />
+                    <circle cx="17" cy="7" r="1" fill="currentColor" />
+                    <circle cx="5" cy="17" r="1" fill="currentColor" />
+                    <circle cx="5" cy="19" r="1" fill="currentColor" />
+                    <circle cx="17" cy="17" r="1" fill="currentColor" />
+                    <circle cx="19" cy="19" r="1" fill="currentColor" />
+                  </svg>
+                  Random
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </form>

@@ -6,8 +6,8 @@ export function calculateCompoundInterest(inputs: CalculatorInputs): YearlyData[
   const nominalRate = annualReturn / 100;
   const inflation = inflationRate / 100;
 
-  // Real return rate using Fisher equation: (1 + nominal) / (1 + inflation) - 1
-  const realRate = (1 + nominalRate) / (1 + inflation) - 1;
+  // Real return rate: nominal rate minus inflation rate
+  const realRate = nominalRate - inflation;
 
   const data: YearlyData[] = [];
 

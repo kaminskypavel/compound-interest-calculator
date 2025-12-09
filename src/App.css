@@ -64,7 +64,8 @@
   color: var(--color-text-tertiary);
 }
 
-.btn-share {
+.btn-share,
+.btn-reset {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -85,6 +86,12 @@
   color: var(--color-accent);
 }
 
+.btn-reset:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
 /* Main Layout */
 .main {
   flex: 1;
@@ -94,7 +101,7 @@
   padding: var(--space-xl);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
 }
 
 /* Form Section - Horizontal at top */
@@ -110,23 +117,24 @@
 }
 
 .form-fields {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr) auto;
   gap: var(--space-md) var(--space-lg);
-  align-items: flex-end;
+  align-items: end;
 }
 
 .form-item {
-  flex: 1;
-  min-width: 140px;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
 }
 
+.form-item-name {
+  grid-column: 1 / -1;
+  max-width: 400px;
+}
+
 .form-item.form-submit {
-  flex: 0 0 auto;
-  min-width: auto;
   justify-content: flex-end;
 }
 
@@ -149,29 +157,6 @@
   letter-spacing: normal;
 }
 
-.input-with-addon {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-addon {
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  color: var(--color-text-tertiary);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.input-addon.left {
-  left: var(--space-md);
-}
-
-.input-addon.right {
-  right: var(--space-md);
-}
-
 .form-input {
   width: 100%;
   padding: var(--space-sm) var(--space-md);
@@ -184,14 +169,6 @@
   transition: all var(--transition-fast);
 }
 
-.form-input.with-left-addon {
-  padding-left: calc(var(--space-md) + 1rem);
-}
-
-.form-input.with-right-addon {
-  padding-right: calc(var(--space-md) + 2rem);
-}
-
 .form-input:focus {
   outline: none;
   border-color: var(--color-accent) !important;
@@ -201,6 +178,100 @@
 .form-input::placeholder {
   color: var(--color-text-tertiary);
   font-family: var(--font-body);
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+  margin-top: var(--space-xs);
+}
+
+/* Number Input - Stepper Style (buttons inside input) */
+.number-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.number-input:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+
+.number-input-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.number-input-btn:hover:not(:disabled) {
+  color: var(--color-accent);
+  background: var(--color-accent-glow);
+}
+
+.number-input-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.number-input-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.number-input-btn.left {
+  border-right: 1px solid var(--color-border);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.number-input-btn.right {
+  border-left: 1px solid var(--color-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.number-input-field {
+  flex: 1;
+  text-align: center;
+  border: none !important;
+  background: transparent !important;
+  padding: var(--space-sm) var(--space-xs) !important;
+  min-width: 60px;
+}
+
+.number-input-field:focus {
+  box-shadow: none !important;
+}
+
+.number-input-addon {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+.number-input-addon.left {
+  left: 44px;
+}
+
+.number-input-addon.right {
+  right: 44px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: var(--space-sm);
 }
 
 .btn-add-scenario {
@@ -218,6 +289,7 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
+  height: 38px;
 }
 
 .btn-add-scenario:hover {
@@ -225,12 +297,36 @@
   transform: translateY(-1px);
 }
 
-/* Options Section */
+.btn-random {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md) !important;
+  background: var(--color-bg-elevated) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--color-text-secondary) !important;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  height: 38px;
+}
+
+.btn-random:hover {
+  background: var(--color-bg-input) !important;
+  border-color: var(--color-text-tertiary) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Options Section - Display mode only */
 .options-section {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--space-lg);
+  align-items: center;
+  gap: var(--space-md);
 }
 
 .display-options {
@@ -281,19 +377,20 @@
   color: var(--color-bg-deep);
 }
 
-/* Scenario List */
+/* Scenario List - Own section */
 .scenario-list {
-  flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-md);
+  width: 100%;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
 }
 
 .scenario-header {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
 }
 
 .scenario-count {
@@ -350,7 +447,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -360,31 +457,32 @@
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateX(-8px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
 .scenario-color-bar {
-  width: 3px;
-  height: 24px;
+  width: 4px;
+  height: 32px;
   border-radius: 2px;
 }
 
 .scenario-content {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
 .scenario-name {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: var(--color-text-primary);
-  max-width: 150px;
+  min-width: 120px;
+  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -396,7 +494,7 @@
 
 .scenario-results {
   display: flex;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
 .scenario-result {
@@ -414,7 +512,7 @@
 
 .scenario-result-value {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
@@ -430,14 +528,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
   color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all var(--transition-fast);
+  margin-left: var(--space-sm);
 }
 
 .btn-remove:hover {
@@ -678,13 +777,42 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .form-fields {
-    gap: var(--space-md);
+    grid-template-columns: repeat(4, 1fr);
   }
 
-  .form-item {
-    min-width: 120px;
+  .form-item.form-submit {
+    grid-column: span 2;
+  }
+
+  .form-buttons {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 900px) {
+  .form-fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-item-name {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+
+  .form-item.form-submit {
+    grid-column: 1 / -1;
+  }
+
+  .form-buttons {
+    justify-content: stretch;
+  }
+
+  .btn-add-scenario,
+  .btn-random {
+    flex: 1;
+    justify-content: center;
   }
 }
 
@@ -698,21 +826,7 @@
   }
 
   .form-fields {
-    flex-direction: column;
-  }
-
-  .form-item {
-    width: 100%;
-    min-width: 100%;
-  }
-
-  .form-item.form-submit {
-    width: 100%;
-  }
-
-  .btn-add-scenario {
-    width: 100%;
-    justify-content: center;
+    grid-template-columns: 1fr;
   }
 
   .options-section {
@@ -722,11 +836,6 @@
 
   .display-options {
     justify-content: space-between;
-  }
-
-  .scenario-list {
-    flex-direction: column;
-    align-items: stretch;
   }
 
   .scenarios {

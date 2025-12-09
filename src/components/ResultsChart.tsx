@@ -107,12 +107,19 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload) return null;
 
+    // Filter out Area entries (they don't have stroke) and entries with UUID-like names
+    const filteredPayload = payload.filter((entry: any) =>
+      entry.stroke && entry.name && !entry.name.includes('_nominal') && !entry.name.includes('_real')
+    );
+
+    if (filteredPayload.length === 0) return null;
+
     return (
       <div className="chart-tooltip">
         <div className="chart-tooltip-header">
           Year {label}
         </div>
-        {payload.map((entry: any, index: number) => (
+        {filteredPayload.map((entry: any, index: number) => (
           <div key={index} className="chart-tooltip-item">
             <div
               className="chart-tooltip-dot"
