@@ -1,0 +1,85 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0c"/>
+      <stop offset="100%" style="stop-color:#141418"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4aa"/>
+      <stop offset="100%" style="stop-color:#00eabb"/>
+    </linearGradient>
+    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4aa;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#00d4aa;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.05">
+    <line x1="0" y1="150" x2="1200" y2="150" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="300" x2="1200" y2="300" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="450" x2="1200" y2="450" stroke="#fff" stroke-width="1"/>
+    <line x1="300" y1="0" x2="300" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="600" y1="0" x2="600" y2="630" stroke="#fff" stroke-width="1"/>
+    <line x1="900" y1="0" x2="900" y2="630" stroke="#fff" stroke-width="1"/>
+  </g>
+
+  <!-- Chart visualization -->
+  <g transform="translate(600, 100)">
+    <!-- Chart area fill -->
+    <path d="M0,400 Q100,380 200,340 T400,220 T500,120 L500,400 Z" fill="url(#chartGradient)"/>
+
+    <!-- Chart line -->
+    <path d="M0,400 Q100,380 200,340 T400,220 T500,120"
+          fill="none" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Data points -->
+    <circle cx="0" cy="400" r="6" fill="#00d4aa"/>
+    <circle cx="125" cy="360" r="6" fill="#00d4aa"/>
+    <circle cx="250" cy="300" r="6" fill="#00d4aa"/>
+    <circle cx="375" cy="200" r="6" fill="#00d4aa"/>
+    <circle cx="500" cy="120" r="6" fill="#00d4aa"/>
+  </g>
+
+  <!-- Title -->
+  <text x="80" y="220" font-family="Georgia, serif" font-size="72" fill="#ffffff">
+    <tspan>Compound</tspan>
+    <tspan fill="#00d4aa" font-style="italic"> Growth</tspan>
+  </text>
+
+  <!-- Subtitle -->
+  <text x="80" y="280" font-family="system-ui, sans-serif" font-size="28" fill="#888888">
+    Investment Calculator
+  </text>
+
+  <!-- Features -->
+  <g transform="translate(80, 340)" font-family="system-ui, sans-serif" font-size="20" fill="#666666">
+    <text y="0">
+      <tspan fill="#00d4aa">+</tspan>
+      <tspan dx="10">Compare multiple scenarios</tspan>
+    </text>
+    <text y="40">
+      <tspan fill="#00d4aa">+</tspan>
+      <tspan dx="10">Nominal vs Real returns</tspan>
+    </text>
+    <text y="80">
+      <tspan fill="#00d4aa">+</tspan>
+      <tspan dx="10">Inflation adjusted projections</tspan>
+    </text>
+    <text y="120">
+      <tspan fill="#00d4aa">+</tspan>
+      <tspan dx="10">Monthly contributions</tspan>
+    </text>
+  </g>
+
+  <!-- Bottom accent line -->
+  <rect x="0" y="620" width="1200" height="10" fill="url(#accent)"/>
+
+  <!-- URL -->
+  <text x="80" y="580" font-family="monospace" font-size="16" fill="#444444">
+    kaminskypavel.github.io/compound-interest-calculator
+  </text>
+</svg>
