@@ -17,6 +17,7 @@ interface TranslationStrings {
   required: string;
   expected: string;
   initialInvestment: string;
+  monthlyContribution: string;
   annualReturn: string;
   inflationRate: string;
   timeHorizon: string;
@@ -41,6 +42,7 @@ interface TranslationStrings {
   scenariosCompared: (count: number, years: number) => string;
   exporting: string;
   png: string;
+  perMonth: string;
   randomNames: string[];
 }
 
@@ -64,6 +66,7 @@ export const translations: Record<Language, TranslationStrings> = {
     required: 'required',
     expected: 'expected',
     initialInvestment: 'Initial Investment',
+    monthlyContribution: 'Monthly Contribution',
     annualReturn: 'Annual Return',
     inflationRate: 'Inflation Rate',
     timeHorizon: 'Time Horizon',
@@ -95,6 +98,7 @@ export const translations: Record<Language, TranslationStrings> = {
       `${count} scenario${count !== 1 ? 's' : ''} compared over ${years} years`,
     exporting: 'Exporting...',
     png: 'PNG',
+    perMonth: '/mo',
 
     // Random scenario names
     randomNames: [
@@ -122,6 +126,7 @@ export const translations: Record<Language, TranslationStrings> = {
     required: 'חובה',
     expected: 'צפוי',
     initialInvestment: 'השקעה ראשונית',
+    monthlyContribution: 'הפקדה חודשית',
     annualReturn: 'תשואה שנתית',
     inflationRate: 'שיעור אינפלציה',
     timeHorizon: 'טווח זמן',
@@ -153,6 +158,7 @@ export const translations: Record<Language, TranslationStrings> = {
       `${count} תרחיש${count !== 1 ? 'ים' : ''} בהשוואה על פני ${years} שנים`,
     exporting: 'מייצא...',
     png: 'PNG',
+    perMonth: '/חודש',
 
     // Random scenario names
     randomNames: [

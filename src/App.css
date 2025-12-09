@@ -147,7 +147,7 @@
 
 .form-fields {
   display: grid;
-  grid-template-columns: repeat(5, 1fr) auto;
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--space-md) var(--space-lg);
   align-items: end;
 }
@@ -158,13 +158,25 @@
   gap: var(--space-xs);
 }
 
+/* Row 1: Scenario name - full width */
 .form-item-name {
   grid-column: 1 / -1;
-  max-width: 400px;
 }
 
+/* Row 2: Initial + Monthly contribution - half each */
+.form-item-contribution {
+  grid-column: span 3;
+}
+
+/* Row 3: Return, Inflation, Years - third each */
+.form-item-config {
+  grid-column: span 2;
+}
+
+/* Row 4: Submit button - full width */
 .form-item.form-submit {
-  justify-content: flex-end;
+  grid-column: 1 / -1;
+  justify-content: flex-start;
 }
 
 .form-label {
@@ -350,33 +362,8 @@
   color: var(--color-text-primary) !important;
 }
 
-/* Options Section - Display mode only */
-.options-section {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-.display-options {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-.display-options-title {
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-tertiary);
-}
-
-.segmented-toggle {
+/* Display Mode Toggle - Inside Chart */
+.display-mode-toggle {
   display: flex;
   background: var(--color-bg-input);
   border-radius: var(--radius-sm);
@@ -384,26 +371,26 @@
   gap: 2px;
 }
 
-.toggle-btn {
-  padding: var(--space-xs) var(--space-md);
+.mode-btn {
+  padding: var(--space-xs) var(--space-sm);
   background: transparent;
   border: none;
   border-radius: calc(var(--radius-sm) - 2px);
   color: var(--color-text-tertiary);
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
-.toggle-btn:hover:not(.active) {
+.mode-btn:hover:not(.active) {
   color: var(--color-text-secondary);
 }
 
-.toggle-btn.active {
-  background: var(--color-accent);
-  color: var(--color-bg-deep);
+.mode-btn.active {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
 }
 
 /* Scenario List - Own section */
@@ -510,6 +497,40 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
+}
+
+.scenario-card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.btn-visibility {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.btn-visibility:hover {
+  background: var(--color-accent-glow);
+}
+
+.btn-visibility.hidden {
+  color: var(--color-text-tertiary);
+}
+
+.btn-visibility.hidden:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-secondary);
 }
 
 .scenario-name {
@@ -848,26 +869,15 @@
 /* Responsive */
 @media (max-width: 1200px) {
   .form-fields {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .form-item.form-submit {
-    grid-column: span 2;
-  }
-
-  .form-buttons {
-    justify-content: flex-end;
-  }
-}
-
-@media (max-width: 900px) {
-  .form-fields {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .form-item-name {
-    grid-column: 1 / -1;
-    max-width: none;
+  .form-item-contribution {
+    grid-column: span 1;
+  }
+
+  .form-item-config {
+    grid-column: span 1;
   }
 
   .form-item.form-submit {
@@ -875,13 +885,7 @@
   }
 
   .form-buttons {
-    justify-content: stretch;
-  }
-
-  .btn-add-scenario,
-  .btn-random {
-    flex: 1;
-    justify-content: center;
+    justify-content: flex-start;
   }
 }
 
@@ -898,13 +902,19 @@
     grid-template-columns: 1fr;
   }
 
-  .options-section {
-    flex-direction: column;
-    align-items: stretch;
+  .form-item-contribution,
+  .form-item-config {
+    grid-column: span 1;
   }
 
-  .display-options {
-    justify-content: space-between;
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .btn-add-scenario,
+  .btn-random {
+    width: 100%;
+    justify-content: center;
   }
 
   .scenarios {
@@ -917,13 +927,8 @@
 
   .chart-controls {
     width: 100%;
-    justify-content: space-between;
-  }
-
-  .chart-legend {
-    order: 3;
-    width: 100%;
-    justify-content: center;
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
 

@@ -17,13 +17,17 @@ import { formatCurrency } from '../utils/calculations';
 import { Button } from '@/components/ui/button';
 import { useI18nStore } from '../stores/i18nStore';
 
+type DisplayMode = 'nominal' | 'real' | 'both';
+
 interface Props {
   scenarios: Scenario[];
   showReal: boolean;
   showNominal: boolean;
+  displayMode: DisplayMode;
+  onDisplayModeChange: (mode: DisplayMode) => void;
 }
 
-export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
+export function ResultsChart({ scenarios, showReal, showNominal, displayMode, onDisplayModeChange }: Props) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [isExporting, setIsExporting] = useState(false);
@@ -155,19 +159,28 @@ export function ResultsChart({ scenarios, showReal, showNominal }: Props) {
         </div>
 
         <div className="chart-controls">
-          <div className="chart-legend">
-            {showNominal && (
-              <div className="legend-item">
-                <div className="legend-line nominal" />
-                <span>{t.nominal}</span>
-              </div>
-            )}
-            {showReal && (
-              <div className="legend-item">
-                <div className="legend-line dashed" />
-                <span>{t.real}</span>
-              </div>
-            )}
+          <div className="display-mode-toggle">
+            <button
+              type="button"
+              className={`mode-btn ${displayMode === 'nominal' ? 'active' : ''}`}
+              onClick={() => onDisplayModeChange('nominal')}
+            >
+              {t.nominal}
+            </button>
+            <button
+              type="button"
+              className={`mode-btn ${displayMode === 'real' ? 'active' : ''}`}
+              onClick={() => onDisplayModeChange('real')}
+            >
+              {t.real}
+            </button>
+            <button
+              type="button"
+              className={`mode-btn ${displayMode === 'both' ? 'active' : ''}`}
+              onClick={() => onDisplayModeChange('both')}
+            >
+              {t.both}
+            </button>
           </div>
 
           <div className="zoom-controls">

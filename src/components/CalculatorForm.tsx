@@ -19,6 +19,7 @@ const createFormSchema = (t: { nameRequired: string; mustBePositive: string }) =
   z.object({
     scenarioName: z.string().min(1, t.nameRequired),
     initialInvestment: z.number().min(0, t.mustBePositive),
+    monthlyContribution: z.number().min(0, t.mustBePositive),
     annualReturn: z.number().min(0).max(100),
     inflationRate: z.number().min(0).max(100),
     years: z.number().min(1).max(100),
@@ -104,6 +105,7 @@ export function CalculatorForm({ onCalculate }: Props) {
     defaultValues: {
       scenarioName: '',
       initialInvestment: 10000,
+      monthlyContribution: 500,
       annualReturn: 7,
       inflationRate: 3,
       years: 30,
@@ -113,6 +115,7 @@ export function CalculatorForm({ onCalculate }: Props) {
   const onSubmit: SubmitHandler<FormValues> = (values) => {
     const inputs: CalculatorInputs = {
       initialInvestment: values.initialInvestment,
+      monthlyContribution: values.monthlyContribution,
       annualReturn: values.annualReturn,
       inflationRate: values.inflationRate,
       years: values.years,
@@ -124,17 +127,19 @@ export function CalculatorForm({ onCalculate }: Props) {
   const addRandomScenario = () => {
     const randomName = t.randomNames[Math.floor(Math.random() * t.randomNames.length)];
     const randomInvestment = Math.round((Math.random() * 90000 + 10000) / 1000) * 1000;
+    const randomMonthly = Math.round((Math.random() * 1500 + 100) / 100) * 100;
     const randomReturn = Math.round((Math.random() * 12 + 3) * 10) / 10;
     const randomInflation = Math.round((Math.random() * 4 + 1) * 10) / 10;
     const randomYears = Math.floor(Math.random() * 35 + 5);
 
     const inputs: CalculatorInputs = {
       initialInvestment: randomInvestment,
+      monthlyContribution: randomMonthly,
       annualReturn: randomReturn,
       inflationRate: randomInflation,
       years: randomYears,
     };
-    onCalculate(inputs, `${randomName} $${randomInvestment.toLocaleString()}`);
+    onCalculate(inputs, `${randomName} ${t.currencySymbol}${randomInvestment.toLocaleString()}`);
   };
 
   const isDev = import.meta.env.DEV;
@@ -168,7 +173,7 @@ export function CalculatorForm({ onCalculate }: Props) {
             control={form.control}
             name="initialInvestment"
             render={({ field }) => (
-              <FormItem className="form-item">
+              <FormItem className="form-item form-item-contribution">
                 <FormLabel className="form-label">{t.initialInvestment}</FormLabel>
                 <FormControl>
                   <NumberInput
@@ -185,9 +190,29 @@ export function CalculatorForm({ onCalculate }: Props) {
 
           <FormField
             control={form.control}
+            name="monthlyContribution"
+            render={({ field }) => (
+              <FormItem className="form-item form-item-contribution">
+                <FormLabel className="form-label">{t.monthlyContribution}</FormLabel>
+                <FormControl>
+                  <NumberInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    min={0}
+                    step={100}
+                    prefix={t.currencySymbol}
+                    suffix={t.perMonth}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="annualReturn"
             render={({ field }) => (
-              <FormItem className="form-item">
+              <FormItem className="form-item form-item-config">
                 <FormLabel className="form-label">
                   {t.annualReturn}
                   <span className="form-label-hint">{t.expected}</span>
@@ -210,7 +235,7 @@ export function CalculatorForm({ onCalculate }: Props) {
             control={form.control}
             name="inflationRate"
             render={({ field }) => (
-              <FormItem className="form-item">
+              <FormItem className="form-item form-item-config">
                 <FormLabel className="form-label">
                   {t.inflationRate}
                   <span className="form-label-hint">{t.expected}</span>
@@ -233,7 +258,7 @@ export function CalculatorForm({ onCalculate }: Props) {
             control={form.control}
             name="years"
             render={({ field }) => (
-              <FormItem className="form-item">
+              <FormItem className="form-item form-item-config">
                 <FormLabel className="form-label">{t.timeHorizon}</FormLabel>
                 <FormControl>
                   <NumberInput

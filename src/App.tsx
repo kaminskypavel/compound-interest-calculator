@@ -24,10 +24,14 @@ function App() {
     scenarios,
     addScenario,
     removeScenario,
+    toggleVisibility,
     clearScenarios,
     getSerializedScenarios,
     loadSerializedScenarios,
   } = useScenarioStore();
+
+  // Filter visible scenarios for the chart
+  const visibleScenarios = scenarios.filter((s) => s.visible);
 
   // i18n
   const { language, setLanguage, t } = useI18nStore();
@@ -106,48 +110,22 @@ function App() {
           <CalculatorForm onCalculate={addScenario} />
         </section>
 
-        <section className="options-section">
-          <div className="display-options">
-            <div className="display-options-title">{t.displayMode}</div>
-            <div className="segmented-toggle">
-              <button
-                type="button"
-                className={`toggle-btn ${displayMode === 'nominal' ? 'active' : ''}`}
-                onClick={() => setDisplayMode('nominal')}
-              >
-                {t.nominal}
-              </button>
-              <button
-                type="button"
-                className={`toggle-btn ${displayMode === 'real' ? 'active' : ''}`}
-                onClick={() => setDisplayMode('real')}
-              >
-                {t.real}
-              </button>
-              <button
-                type="button"
-                className={`toggle-btn ${displayMode === 'both' ? 'active' : ''}`}
-                onClick={() => setDisplayMode('both')}
-              >
-                {t.both}
-              </button>
-            </div>
-          </div>
-        </section>
-
         {scenarios.length > 0 && (
           <ScenarioList
             scenarios={scenarios}
             onRemove={removeScenario}
+            onToggleVisibility={toggleVisibility}
             onClear={handleClear}
           />
         )}
 
         <section className="chart-section">
           <ResultsChart
-            scenarios={scenarios}
+            scenarios={visibleScenarios}
             showReal={displayMode === 'real' || displayMode === 'both'}
             showNominal={displayMode === 'nominal' || displayMode === 'both'}
+            displayMode={displayMode}
+            onDisplayModeChange={setDisplayMode}
           />
         </section>
       </main>

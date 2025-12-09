@@ -1,19 +1,39 @@
 import type { CalculatorInputs, YearlyData } from '../types';
 
 export function calculateCompoundInterest(inputs: CalculatorInputs): YearlyData[] {
-  const { initialInvestment, annualReturn, inflationRate, years } = inputs;
-
-  const nominalRate = annualReturn / 100;
-  const inflation = inflationRate / 100;
-
-  // Real return rate: nominal rate minus inflation rate
-  const realRate = nominalRate - inflation;
+  const { initialInvestment, monthlyContribution, annualReturn, inflationRate, years } = inputs;
 
   const data: YearlyData[] = [];
 
+  // Monthly rates
+  const monthlyNominalRate = annualReturn / 100 / 12;
+  const monthlyRealRate = (annualReturn - inflationRate) / 100 / 12;
+
   for (let year = 0; year <= years; year++) {
-    const nominalValue = initialInvestment * Math.pow(1 + nominalRate, year);
-    const realValue = initialInvestment * Math.pow(1 + realRate, year);
+    const months = year * 12;
+
+    let nominalValue: number;
+    let realValue: number;
+
+    if (monthlyNominalRate === 0) {
+      // No growth case - just sum of contributions
+      nominalValue = initialInvestment + monthlyContribution * months;
+    } else {
+      // FV = P(1+r)^n + PMT × [((1+r)^n - 1) / r]
+      const nominalGrowthFactor = Math.pow(1 + monthlyNominalRate, months);
+      nominalValue =
+        initialInvestment * nominalGrowthFactor +
+        monthlyContribution * ((nominalGrowthFactor - 1) / monthlyNominalRate);
+    }
+
+    if (monthlyRealRate === 0) {
+      realValue = initialInvestment + monthlyContribution * months;
+    } else {
+      const realGrowthFactor = Math.pow(1 + monthlyRealRate, months);
+      realValue =
+        initialInvestment * realGrowthFactor +
+        monthlyContribution * ((realGrowthFactor - 1) / monthlyRealRate);
+    }
 
     data.push({
       year,
